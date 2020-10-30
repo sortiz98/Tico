@@ -24,10 +24,16 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
-    static String API_KEY = "";
+    // Type conversion:     static String API_KEY = R.string.Google_API_Key;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
-    String address = "";
+    String address = ""; // might not need
     private FusedLocationProviderClient fusedLocationProviderClient;
+
+    // Nearby Search results
+    private String restaurant_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+
+    // Text based search results
+    private String SEARCH_URL = "https://maps.googleapis.com/maps/api/place/textsearch/xml?query=restaurants+in+Sydney&key=YOUR_API_KEY";
 
     /** TODO */
     String type = "currentLocation";
@@ -48,17 +54,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(Location location) {
                     double lat = location.getLatitude(), lon = location.getLongitude();
-                    processLatLon(String.valueOf(lat), String.valueOf(lon));
+                    findRestaurantsByCoordinate(lat, lon);
                 }
             });
         }
 
     }
 
-    private void processLatLon(String lat, String lon) {
+    private void findRestaurantsByCoordinate(double lat, double lon) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String gps_URL = "?latlng=" + lat + "," + lon;
-        String full_URL = GEO_URL + gps_URL + "&key=" + API_KEY;
+        String gps_URL = "location=-" + lat + "," + lon + "&radius=1500&type=restaurant";
+        String full_URL = restaurant_URL + gps_URL + "&key=" + R.string.Google_API_Key;
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, full_URL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -72,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 String jsonError = new String(error.networkResponse.data);
-                System.out.println(jsonError); 
+                System.out.println(jsonError);
             }
         });
         queue.add(stringRequest);
