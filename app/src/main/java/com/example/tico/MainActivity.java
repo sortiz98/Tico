@@ -73,9 +73,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void findRestaurantsByCoordinate(double lat, double lon) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String gps_URL = "location=-" + lat + "," + lon + "&radius=1500&type=restaurant";
-        String full_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=1500&type=restaurant&keyword=cruise&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0";
-//        String full_URL = restaurant_URL + gps_URL + "&key=" + getResources().getString(R.string.Google_API_Key);
+        String gps_URL = "location=" + lat + "," + lon + "&radius=1500&type=restaurant";
+        String full_URL = restaurant_URL + gps_URL + "&key=" + getResources().getString(R.string.Google_API_Key);
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, full_URL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
