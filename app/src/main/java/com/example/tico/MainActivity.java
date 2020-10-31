@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -19,6 +20,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,10 +28,9 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    ImageView imageView;
     TextView test;
     Button currentLocation;
-
 
     // Type conversion:     static String API_KEY = R.string.Google_API_Key;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
@@ -39,8 +40,14 @@ public class MainActivity extends AppCompatActivity {
     // Nearby Search results
     private String restaurant_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
 
+    // Photo of restaurant (max-width of photo can be changed)
+    private String photo_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&";
+
     // Text based search results
     private String SEARCH_URL = "https://maps.googleapis.com/maps/api/place/textsearch/xml?query=restaurants+in+Sydney&key=YOUR_API_KEY";
+
+    // Details of a restaurant
+    private String detail_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
 
     /** TODO */
     String type = "currentLocation";
@@ -54,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        imageView = findViewById(R.id.imageView);
         test = findViewById(R.id.test);
         currentLocation = findViewById(R.id.currentLocation);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -81,6 +90,12 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     results = (JSONArray) response.get("results");
                     name = results.getJSONObject(0).getString("name");
+                    String placeID = results.getJSONObject(0).getString("place_id");
+                    String detailUrl = detail_URL + "place_id=" + placeID + "&fields=name,rating,formatted_phone_number&key=" + getResources().getString(R.string.Google_API_Key);
+                    JSONArray photos = results.getJSONObject(0).getJSONArray("photos");
+                    String photoReference = photos.getJSONObject(0).getString("photo_reference");
+                    String photoUrl = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
+                    Picasso.get().load(photoUrl).into(imageView);
                     test.setText(name);
                 } catch (JSONException e) {
                     e.printStackTrace();
