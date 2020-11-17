@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     TextView restaurantNameThree;
     Button currentLocation;
     String cuisine;
+    Restaurant restaurant;
 
     // Type conversion:     static String API_KEY = R.string.Google_API_Key;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent startIntent = new Intent(getApplicationContext(), DetailsActivity.class);
+                startIntent.putExtra("restaurant", restaurant);
                 startActivity(startIntent);
             }
         });
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 findRestaurantsByCoordinate(lat, lon);
             }
         });
+
     }
 
     private void findRestaurantsByCoordinate(double lat, double lon) {
@@ -115,14 +118,16 @@ public class MainActivity extends AppCompatActivity {
                     results = (JSONArray) response.get("results");
                     name = results.getJSONObject(0).getString("name");
                     String placeID = results.getJSONObject(0).getString("place_id");
-                    String detailUrl = detail_URL + "place_id=" + placeID + "&fields=name,rating,formatted_phone_number&key=" + getResources().getString(R.string.Google_API_Key);
+                    String detailURL = detail_URL + "place_id=" + placeID + "&fields=name,rating,formatted_phone_number&key=" + getResources().getString(R.string.Google_API_Key);
 
                     // photo
                     JSONArray photos = results.getJSONObject(0).getJSONArray("photos");
                     String photoReference = photos.getJSONObject(0).getString("photo_reference");
-                    String photoUrl = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
-                    Picasso.get().load(photoUrl).into(imageView);
+                    String photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
+                    Picasso.get().load(photoURL).into(imageView);
 
+
+                    restaurant = new Restaurant(name, placeID, photoURL, detailURL);
                     restaurantNameOne.setText(name);
                 } catch (JSONException e) {
                     e.printStackTrace();
