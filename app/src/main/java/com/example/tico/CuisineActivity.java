@@ -13,6 +13,7 @@ public class CuisineActivity extends AppCompatActivity {
     Button mexicanCuisine;
     Button japaneseCuisine;
     Button indianCuisine;
+    Button koreanCuisine;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +24,7 @@ public class CuisineActivity extends AppCompatActivity {
         mexicanCuisine = findViewById(R.id.mexican);
         japaneseCuisine = findViewById(R.id.japanese);
         indianCuisine = findViewById(R.id.indian);
+        koreanCuisine = findViewById(R.id.korean);
 
         chineseCuisine.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +56,18 @@ public class CuisineActivity extends AppCompatActivity {
         indianCuisine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent 
+                Intent startIntent = new Intent(getApplicationContext(), MainActivity.class);
+                startIntent.putExtra("cuisine", "indian");
+                startActivity(startIntent);
+            }
+        });
+
+        koreanCuisine.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startIntent = new Intent(getApplicationContext(), MainActivity.class);
+                startIntent.putExtra("cuisine", "korean");
+                startActivity(startIntent);
             }
         });
 

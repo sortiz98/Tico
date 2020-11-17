@@ -4,9 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,7 +33,6 @@ import java.util.HashSet;
 
 public class MainActivity extends AppCompatActivity {
 
-    LinearLayout linearLayout;
     ImageView imageView;
     TextView test;
     TextView restaurantNameOne;
@@ -45,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     String address = ""; // might not need
     private FusedLocationProviderClient fusedLocationProviderClient;
 
-    // Nearby Search results
     private String restaurant_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
 
     // Photo of restaurant (max-width of photo can be changed)
@@ -69,27 +69,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        linearLayout = new LinearLayout(this);
-        setContentView(linearLayout);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-
         restaurantNameOne = findViewById(R.id.restaurant);
         imageView = findViewById(R.id.imageView);
         test = findViewById(R.id.test);
         currentLocation = findViewById(R.id.currentLocation);
 
-        LinearLayout llMain = findViewById(R.id.rlMain);
-        TextView textView = new TextView(this);
-        textView.setText("I am added dynamically to the view");
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT
-        );
-        textView.setLayoutParams(params);
-        llMain.addView(textView);
+        currentLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /** TODO */
+            }
+        });
 
-
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startIntent = new Intent(getApplicationContext(), DetailsActivity.class);
+                startActivity(startIntent);
+            }
+        });
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -103,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
                 findRestaurantsByCoordinate(lat, lon);
             }
         });
-
     }
 
     private void findRestaurantsByCoordinate(double lat, double lon) {
@@ -135,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 String jsonError = new String(error.networkResponse.data);
-                test.setText(jsonError);
+                test.setText(jsonError); // can be deleted to hold potential errors
             }
         });
         queue.add(stringRequest);
