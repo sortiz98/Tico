@@ -9,6 +9,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -30,9 +31,12 @@ import java.util.HashSet;
 
 public class MainActivity extends AppCompatActivity {
 
+    LinearLayout linearLayout;
     ImageView imageView;
     TextView test;
-    TextView restaurantName;
+    TextView restaurantNameOne;
+    TextView restaurantNameTwo;
+    TextView restaurantNameThree;
     Button currentLocation;
     String cuisine;
 
@@ -65,10 +69,28 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        restaurantName = findViewById(R.id.restaurant);
+
+        linearLayout = new LinearLayout(this);
+        setContentView(linearLayout);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+
+        restaurantNameOne = findViewById(R.id.restaurant);
         imageView = findViewById(R.id.imageView);
         test = findViewById(R.id.test);
         currentLocation = findViewById(R.id.currentLocation);
+
+        LinearLayout llMain = findViewById(R.id.rlMain);
+        TextView textView = new TextView(this);
+        textView.setText("I am added dynamically to the view");
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        );
+        textView.setLayoutParams(params);
+        llMain.addView(textView);
+
+
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -104,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                     String photoUrl = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
                     Picasso.get().load(photoUrl).into(imageView);
 
-                    restaurantName.setText(name);
+                    restaurantNameOne.setText(name);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
