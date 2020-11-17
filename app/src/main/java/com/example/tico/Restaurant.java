@@ -9,7 +9,7 @@ public class Restaurant implements Serializable {
     String iconURL;
     String detailURL;
     String id;
-    boolean open;
+    boolean openNow;
 
     public Restaurant(String name, String id, String photoURL, String detailURL) {
         this.name = name;
@@ -18,19 +18,20 @@ public class Restaurant implements Serializable {
         this.detailURL = detailURL;
     }
 
-    public Restaurant(String name, String formattedAddress, String photoURL, String iconURL, String id, boolean open) {
+    public Restaurant(String name, String formattedAddress, String photoURL, String iconURL, String id, boolean openNow) {
         this.name = name;
         this.formattedAddress = formattedAddress;
         this.photoURL = photoURL;
         this.iconURL = iconURL;
         this.id = id;
-        this.open = open;
+        this.openNow = openNow;
     }
 
     public String getName() { return this.name; }
     public String getAddress() {return this.formattedAddress; }
     public String getPhotoURL() {return this.photoURL; }
+    public String getDetailURL() {return this.detailURL; }
     public String getIconURL() {return this.iconURL; }
     public String getID() {return this.id; }
-    public boolean open() {return this.open; }
+    public boolean open() {return this.openNow; }
 }
