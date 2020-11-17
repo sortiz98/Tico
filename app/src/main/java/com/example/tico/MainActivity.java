@@ -26,11 +26,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashSet;
+
 public class MainActivity extends AppCompatActivity {
 
     ImageView imageView;
     TextView test;
+    TextView restaurantName;
     Button currentLocation;
+    String cuisine;
 
     // Type conversion:     static String API_KEY = R.string.Google_API_Key;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
@@ -38,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     // Nearby Search results
-    private String restaurant_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+    private String restaurant_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
 
     // Photo of restaurant (max-width of photo can be changed)
     private String photo_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&";
@@ -49,19 +53,19 @@ public class MainActivity extends AppCompatActivity {
     // Details of a restaurant
     private String detail_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
 
-    /** TODO */
     String type = "currentLocation";
     String name;
     JSONArray results;
 
-
+    // "https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0"
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        restaurantName = findViewById(R.id.restaurant);
         imageView = findViewById(R.id.imageView);
         test = findViewById(R.id.test);
         currentLocation = findViewById(R.id.currentLocation);
@@ -82,7 +86,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void findRestaurantsByCoordinate(double lat, double lon) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String gps_URL = "location=" + lat + "," + lon + "&radius=1500&type=restaurant";
+        cuisine = getIntent().getExtras().getString("cuisine");
+        String gps_URL = "query=" + cuisine + "+restaurants&location=" + lat + "," + lon + "&radius=1500&type=restaurant";
         String full_URL = restaurant_URL + gps_URL + "&key=" + getResources().getString(R.string.Google_API_Key);
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, full_URL, null, new Response.Listener<JSONObject>() {
             @Override
@@ -92,11 +97,14 @@ public class MainActivity extends AppCompatActivity {
                     name = results.getJSONObject(0).getString("name");
                     String placeID = results.getJSONObject(0).getString("place_id");
                     String detailUrl = detail_URL + "place_id=" + placeID + "&fields=name,rating,formatted_phone_number&key=" + getResources().getString(R.string.Google_API_Key);
+
+                    // photo
                     JSONArray photos = results.getJSONObject(0).getJSONArray("photos");
                     String photoReference = photos.getJSONObject(0).getString("photo_reference");
                     String photoUrl = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
                     Picasso.get().load(photoUrl).into(imageView);
-                    test.setText(name);
+
+                    restaurantName.setText(name);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
