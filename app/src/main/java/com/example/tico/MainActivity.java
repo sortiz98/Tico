@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -29,16 +28,24 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashSet;
-
 public class MainActivity extends AppCompatActivity {
 
-    ImageView imageView;
-    TextView test;
+    ImageView imageOne;
+    ImageView imageTwo;
+    ImageView imageThree;
+    ImageView imageFour;
+
     TextView restaurantNameOne;
+    TextView restaurantNameTwo;
+    TextView restaurantNameThree;
+    TextView restaurantNameFour;
+
     Button currentLocation;
     String cuisine;
-    Restaurant restaurant;
+    Restaurant restaurantOne;
+    Restaurant restaurantTwo;
+    Restaurant restaurantThree;
+    Restaurant restaurantFour;
 
     // Type conversion:     static String API_KEY = R.string.Google_API_Key;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
@@ -57,7 +64,11 @@ public class MainActivity extends AppCompatActivity {
     private String detail_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
 
     String type = "currentLocation";
-    String name;
+    String nameOne;
+    String nameTwo;
+    String nameThree;
+    String nameFour;
+
     JSONArray results;
 
     // "https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0"
@@ -68,9 +79,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        restaurantNameOne = findViewById(R.id.restaurant);
-        imageView = findViewById(R.id.imageView);
-        test = findViewById(R.id.test);
+        restaurantNameOne = findViewById(R.id.restaurantOne);
+        restaurantNameTwo = findViewById(R.id.restaurantTwo);
+        restaurantNameThree = findViewById(R.id.restaurantThree);
+        restaurantNameFour = findViewById(R.id.restaurantFour);
+
+        imageOne = findViewById(R.id.imageViewOne);
+        imageTwo = findViewById(R.id.imageViewTwo);
+        imageThree = findViewById(R.id.imageViewThree);
+        imageFour = findViewById(R.id.imageViewFour);
+
         currentLocation = findViewById(R.id.currentLocation);
 
         currentLocation.setOnClickListener(new View.OnClickListener() {
@@ -80,14 +98,43 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        imageView.setOnClickListener(new View.OnClickListener() {
+        imageOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent startIntent = new Intent(getApplicationContext(), DetailsActivity.class);
-                startIntent.putExtra("restaurant", restaurant);
+                startIntent.putExtra("restaurant", restaurantOne);
                 startActivity(startIntent);
             }
         });
+
+        imageTwo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startIntent = new Intent(getApplicationContext(), DetailsActivity.class);
+                startIntent.putExtra("restaurant", restaurantTwo);
+                startActivity(startIntent);
+            }
+        });
+
+        imageThree.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startIntent = new Intent(getApplicationContext(), DetailsActivity.class);
+                startIntent.putExtra("restaurant", restaurantThree);
+                startActivity(startIntent);
+            }
+        });
+
+        imageFour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startIntent = new Intent(getApplicationContext(), DetailsActivity.class);
+                startIntent.putExtra("restaurant", restaurantFour);
+                startActivity(startIntent);
+            }
+        });
+
+
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -114,18 +161,18 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 try {
                     results = (JSONArray) response.get("results");
-                    name = results.getJSONObject(0).getString("name");
+                    nameOne = results.getJSONObject(0).getString("name");
                     String placeID = results.getJSONObject(0).getString("place_id");
                     String detailURL = detail_URL + "place_id=" + placeID + "&key=" + getResources().getString(R.string.Google_API_Key);
-
                     // photo
                     JSONArray photos = results.getJSONObject(0).getJSONArray("photos");
                     String photoReference = photos.getJSONObject(0).getString("photo_reference");
                     String photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
-                    Picasso.get().load(photoURL).into(imageView);
+                    Picasso.get().load(photoURL).into(imageOne);
+                    restaurantOne = new Restaurant(nameOne, placeID, photoURL, detailURL);
+                    restaurantNameOne.setText(nameOne);
 
-                    restaurant = new Restaurant(name, placeID, photoURL, detailURL);
-                    restaurantNameOne.setText(name);
+                    
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -134,7 +181,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 String jsonError = new String(error.networkResponse.data);
-                test.setText(jsonError); // can be deleted to hold potential errors
             }
         });
         queue.add(stringRequest);
