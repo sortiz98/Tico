@@ -31,13 +31,15 @@ public class DetailsActivity extends AppCompatActivity {
     private String address;
     private String website;
     private String openNow;
+    private double rating;
 
     private TextView restaurantName;
     private TextView restaurantAddress;
     private TextView restaurantOpenNow;
     private TextView restaurantWebsite;
+    private TextView restaurantRating;
 
-    private ImageView imageView;
+    private ImageView restaurantPhoto;
 
     // test detailURL: https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJaRrJa2Nx44kRPmjdbYFv-Ow&fields=name,rating,formatted_phone_number&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
 
@@ -51,14 +53,15 @@ public class DetailsActivity extends AppCompatActivity {
         restaurantAddress = findViewById(R.id.address);
         restaurantOpenNow = findViewById(R.id.openNow);
         restaurantWebsite = findViewById(R.id.website);
-        imageView = findViewById(R.id.imageView);
+        restaurantRating = findViewById(R.id.rating);
+        restaurantPhoto = findViewById(R.id.imageView);
 
         restaurantName.setText(restaurant.getName());
 
         photoURL = restaurant.getPhotoURL();
         detailURL = restaurant.getDetailURL();
 
-        Picasso.get().load(photoURL).into(imageView);
+        Picasso.get().load(photoURL).into(restaurantPhoto);
         Date now = new Date(); // used to determine open & closed times
 
 
@@ -71,10 +74,12 @@ public class DetailsActivity extends AppCompatActivity {
                     address = results.getString("formatted_address");
                     website = results.getString("website");
                     openNow = results.getJSONObject("opening_hours").getBoolean("open_now") ? "open" : "closed";
+                    rating = results.getDouble("rating");
 
                     restaurantAddress.setText(address);
                     restaurantOpenNow.setText(openNow);
                     restaurantWebsite.setText(website);
+                    restaurantRating.setText(String.valueOf(rating));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
