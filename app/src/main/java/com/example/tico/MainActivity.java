@@ -12,6 +12,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,22 +36,17 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button currentLocation;
+    EditText currentLocation;
     String cuisine;
-
-    // Type conversion:     static String API_KEY = R.string.Google_API_Key;
+    String addressType;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
     String address = ""; // might not need
     private FusedLocationProviderClient fusedLocationProviderClient;
-
     private String restaurant_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
-
     // Photo of restaurant (max-width of photo can be changed)
     private String photo_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&";
-
     // Text based search results
     private String SEARCH_URL = "https://maps.googleapis.com/maps/api/place/textsearch/xml?query=restaurants+in+Sydney&key=YOUR_API_KEY";
-
     // Details of a restaurant
     private String detail_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
 
@@ -66,27 +62,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        currentLocation = findViewById(R.id.currentLocation);
-//        currentLocation.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                /** TODO */
-//            }
-//        });
-        restaurants = new ArrayList<>();
-
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
-        }
-        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+        addressType = "currentLocation";
+        currentLocation = findViewById(R.id.currentLocation);
+        currentLocation.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSuccess(Location location) {
-                double lat = location.getLatitude(), lon = location.getLongitude();
-                findRestaurantsByCoordinate(lat, lon);
+            public void onClick(View view) {
+                
             }
         });
+        restaurants = new ArrayList<>();
+        if (addressType.equals("currentLocation")) {
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
+            }
+            fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    double lat = location.getLatitude(), lon = location.getLongitude();
+                    findRestaurantsByCoordinate(lat, lon);
+                }
+            });
+        }
         recyclerView = findViewById(R.id.rvRestaurants);
     }
 
