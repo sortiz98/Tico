@@ -1,32 +1,19 @@
 package com.example.tico;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.core.content.res.ResourcesCompat;
-import android.annotation.SuppressLint;
+
 import android.content.Context;
-import android.content.res.Resources;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
-import com.android.volley.toolbox.Volley;
+import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,46 +21,47 @@ import java.util.Map;
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder> {
 
     private List<Restaurant> restaurants;
-    public static Map<String, Bitmap> photos;
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageIv;
-        TextView nameTv;
-
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView restaurantNameTv;
+        ImageView restaurantPhotoIv;
         public ViewHolder(View itemView) {
             super(itemView);
-            this.imageIv = itemView.findViewById(R.id.phototest);
-            this.nameTv = itemView.findViewById(R.id.nametest);
+            this.restaurantNameTv = itemView.findViewById(R.id.restaurantName);
+            this.restaurantPhotoIv = itemView.findViewById(R.id.restaurantPhoto);
         }
     }
 
     public RestaurantAdapter(List<Restaurant> restaurants) {
         this.restaurants = restaurants;
-        photos = new HashMap<>();
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View restaurantView = inflater.inflate(R.layout.card_layout, parent, false);
-        ViewHolder viewHolder = new ViewHolder(restaurantView);
-        return viewHolder;
+        return new ViewHolder(restaurantView);
     }
 
     @Override
     public void onBindViewHolder(RestaurantAdapter.ViewHolder holder, int position) {
-        Restaurant restaurant = restaurants.get(position);
-        TextView textViewName = holder.nameTv;
-        textViewName.setText(restaurant.getName());
-        textViewName.setText("hello");
-//        ImageView imageViewPhoto = holder.imageIv;
-//        String photoUrl = restaurant.getPhotoURL();
-
-//        if (photoUrl != null)
-//            setPhoto(restaurant.getName(), photoUrl, imageViewPhoto);
-//
-//        imageViewPhoto.setContentDescription(restaurant.getName());
+        TextView nameTv = holder.restaurantNameTv;
+        ImageView photoIv = holder.restaurantPhotoIv;
+        final Restaurant restaurant = restaurants.get(position);
+        nameTv.setText(restaurant.getName());
+        String photoURL = restaurant.getPhotoURL();
+        Picasso.get().load(photoURL).resize(200, 0).centerCrop().into(photoIv);
+        photoIv.setContentDescription(restaurant.getName());
+        photoIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startIntent = new Intent(view.getContext(), DetailsActivity.class);
+                startIntent.putExtra("restaurant", restaurant);
+                view.getContext().startActivity(startIntent);
+            }
+        });
     }
 
     @Override
