@@ -6,11 +6,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -36,9 +39,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText currentLocation;
+    EditText locationEditText;
     String cuisine;
     String addressType;
+    double longitude, latitude;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
     String address = ""; // might not need
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -61,16 +65,20 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        addressType = "currentLocation";
-        currentLocation = findViewById(R.id.currentLocation);
-        currentLocation.setOnClickListener(new View.OnClickListener() {
+        restaurants = new ArrayList<>();
+        addressType = "currentLocation"; // Default to use current location
+        locationEditText = findViewById(R.id.location);
+        locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View view) {
-                
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
+                    addressType = "inputLocation";
+                }
+                return false;
             }
         });
-        restaurants = new ArrayList<>();
         if (addressType.equals("currentLocation")) {
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -80,10 +88,33 @@ public class MainActivity extends AppCompatActivity {
             fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
                 @Override
                 public void onSuccess(Location location) {
-                    double lat = location.getLatitude(), lon = location.getLongitude();
-                    findRestaurantsByCoordinate(lat, lon);
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                    findRestaurantsByCoordinate(latitude, longitude);
                 }
             });
+        } else if (addressType.equals("inputLocation")) {
+            RequestQueue queue = Volley.newRequestQueue(this);
+            String place_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address.replace("\\s+", "")
+                    + "&key=" + getResources().getString(R.string.Google_API_Key);
+            JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, place_URL, null, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        latitude = ((JSONArray) response.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lat");
+                        longitude = ((JSONArray) response.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lon");
+                        findRestaurantsByCoordinate(latitude, longitude);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    System.out.println("invalid address");
+                }
+            });
+            queue.add(stringRequest);
         }
         recyclerView = findViewById(R.id.rvRestaurants);
     }
