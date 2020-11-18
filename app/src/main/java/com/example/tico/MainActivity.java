@@ -2,6 +2,8 @@ package com.example.tico;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.Intent;
@@ -28,24 +30,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
-
-    ImageView imageOne;
-    ImageView imageTwo;
-    ImageView imageThree;
-    ImageView imageFour;
-
-    TextView restaurantNameOne;
-    TextView restaurantNameTwo;
-    TextView restaurantNameThree;
-    TextView restaurantNameFour;
 
     Button currentLocation;
     String cuisine;
-    Restaurant restaurantOne;
-    Restaurant restaurantTwo;
-    Restaurant restaurantThree;
-    Restaurant restaurantFour;
 
     // Type conversion:     static String API_KEY = R.string.Google_API_Key;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
@@ -63,13 +54,9 @@ public class MainActivity extends AppCompatActivity {
     // Details of a restaurant
     private String detail_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
 
-    String type = "currentLocation";
-    String nameOne;
-    String nameTwo;
-    String nameThree;
-    String nameFour;
-
     JSONArray results;
+    List<Restaurant> restaurants;
+    RecyclerView recyclerView;
 
     // "https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0"
 
@@ -79,62 +66,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        restaurantNameOne = findViewById(R.id.restaurantOne);
-        restaurantNameTwo = findViewById(R.id.restaurantTwo);
-        restaurantNameThree = findViewById(R.id.restaurantThree);
-        restaurantNameFour = findViewById(R.id.restaurantFour);
-
-        imageOne = findViewById(R.id.imageViewOne);
-        imageTwo = findViewById(R.id.imageViewTwo);
-        imageThree = findViewById(R.id.imageViewThree);
-        imageFour = findViewById(R.id.imageViewFour);
-
-        currentLocation = findViewById(R.id.currentLocation);
-
-        currentLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                /** TODO */
-            }
-        });
-
-        imageOne.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent startIntent = new Intent(getApplicationContext(), DetailsActivity.class);
-                startIntent.putExtra("restaurant", restaurantOne);
-                startActivity(startIntent);
-            }
-        });
-
-        imageTwo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent startIntent = new Intent(getApplicationContext(), DetailsActivity.class);
-                startIntent.putExtra("restaurant", restaurantTwo);
-                startActivity(startIntent);
-            }
-        });
-
-        imageThree.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent startIntent = new Intent(getApplicationContext(), DetailsActivity.class);
-                startIntent.putExtra("restaurant", restaurantThree);
-                startActivity(startIntent);
-            }
-        });
-
-        imageFour.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent startIntent = new Intent(getApplicationContext(), DetailsActivity.class);
-                startIntent.putExtra("restaurant", restaurantFour);
-                startActivity(startIntent);
-            }
-        });
-
-
+//        currentLocation = findViewById(R.id.currentLocation);
+//        currentLocation.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                /** TODO */
+//            }
+//        });
+        restaurants = new ArrayList<>();
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -148,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 findRestaurantsByCoordinate(lat, lon);
             }
         });
-
+        recyclerView = findViewById(R.id.rvRestaurants);
     }
 
     private void findRestaurantsByCoordinate(double lat, double lon) {
@@ -161,18 +100,21 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 try {
                     results = (JSONArray) response.get("results");
-                    nameOne = results.getJSONObject(0).getString("name");
-                    String placeID = results.getJSONObject(0).getString("place_id");
-                    String detailURL = detail_URL + "place_id=" + placeID + "&key=" + getResources().getString(R.string.Google_API_Key);
-                    // photo
-                    JSONArray photos = results.getJSONObject(0).getJSONArray("photos");
-                    String photoReference = photos.getJSONObject(0).getString("photo_reference");
-                    String photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
-                    Picasso.get().load(photoURL).into(imageOne);
-                    restaurantOne = new Restaurant(nameOne, placeID, photoURL, detailURL);
-                    restaurantNameOne.setText(nameOne);
+                    // Outputs at most five restaurants
+                    for (int i = 0; i < Math.min(results.length(), 5); i++) {
+                        JSONObject restaurantInfo = results.getJSONObject(i);
+                        String name = restaurantInfo.getString("name");
+                        String placeID = restaurantInfo.getString("place_id");
+                        String detailURL = detail_URL + "place_id=" + placeID + "&key=" + getResources().getString(R.string.Google_API_Key);
+                        // photo
+                        JSONArray photos = restaurantInfo.getJSONArray("photos");
+                        String photoReference = photos.getJSONObject(0).getString("photo_reference");
+                        String photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
+                        restaurants.add(new Restaurant(name, placeID, photoURL, detailURL));
+                    }
+                    RestaurantAdapter adapter = new RestaurantAdapter(restaurants);
 
-                    
+                    recyclerView.setAdapter(adapter);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -184,5 +126,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         queue.add(stringRequest);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 }

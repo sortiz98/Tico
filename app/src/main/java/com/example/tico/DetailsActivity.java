@@ -3,6 +3,7 @@ package com.example.tico;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -11,6 +12,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +23,8 @@ public class DetailsActivity extends AppCompatActivity {
 
     // Details of a restaurant
     private String detailURL;
+    private String photoURL;
+
     private Restaurant restaurant;
 
     private JSONObject results;
@@ -32,6 +36,8 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView restaurantAddress;
     private TextView restaurantOpenNow;
     private TextView restaurantWebsite;
+
+    private ImageView imageView;
 
     // test detailURL: https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJaRrJa2Nx44kRPmjdbYFv-Ow&fields=name,rating,formatted_phone_number&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
 
@@ -45,10 +51,14 @@ public class DetailsActivity extends AppCompatActivity {
         restaurantAddress = findViewById(R.id.address);
         restaurantOpenNow = findViewById(R.id.openNow);
         restaurantWebsite = findViewById(R.id.website);
+        imageView = findViewById(R.id.imageView);
 
         restaurantName.setText(restaurant.getName());
 
+        photoURL = restaurant.getPhotoURL();
         detailURL = restaurant.getDetailURL();
+
+        Picasso.get().load(photoURL).into(imageView);
         Date now = new Date(); // used to determine open & closed times
 
 
