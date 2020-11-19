@@ -40,7 +40,6 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView restaurantRating;
 
     private ImageView restaurantPhoto;
-
     // test detailURL: https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJaRrJa2Nx44kRPmjdbYFv-Ow&fields=name,rating,formatted_phone_number&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
 
     @Override
