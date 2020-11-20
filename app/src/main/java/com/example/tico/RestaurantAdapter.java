@@ -21,7 +21,6 @@ import java.util.Map;
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder> {
 
     private List<Restaurant> restaurants;
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView restaurantNameTv;
         ImageView restaurantPhotoIv;
