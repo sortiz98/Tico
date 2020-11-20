@@ -28,6 +28,8 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -41,6 +43,7 @@ public class DetailsActivity extends AppCompatActivity {
     private String address;
     private String website;
     private String openNow;
+    private String name;
     private double rating;
 
     private TextView restaurantName;
@@ -51,6 +54,16 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView languageTextView;
 
     private ImageView restaurantPhoto;
+
+    HashMap<String, String> languageMap = new HashMap() {{
+        put("English", TranslateLanguage.ENGLISH);
+        put("Chinese", TranslateLanguage.CHINESE);
+        put("German", TranslateLanguage.GERMAN);
+        put("French", TranslateLanguage.FRENCH);
+        put("Spanish", TranslateLanguage.SPANISH);
+        put("Japanese", TranslateLanguage.JAPANESE);
+        put("Korean", TranslateLanguage.KOREAN);
+    }};
     // test detailURL: https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJaRrJa2Nx44kRPmjdbYFv-Ow&fields=name,rating,formatted_phone_number&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
 
 //    Translate translate = TranslateOptions.getDefaultInstance().getService();
@@ -69,62 +82,13 @@ public class DetailsActivity extends AppCompatActivity {
         restaurantPhoto = findViewById(R.id.imageView);
         languageTextView = findViewById(R.id.language);
 
-        restaurantName.setText(restaurant.getName());
-
+        name = restaurant.getName();
         photoURL = restaurant.getPhotoURL();
         detailURL = restaurant.getDetailURL();
         language = restaurant.getLanguage();
         languageTextView.setText(language);
         Picasso.get().load(photoURL).into(restaurantPhoto);
 
-        TranslatorOptions options = new TranslatorOptions.Builder()
-                        .setSourceLanguage(TranslateLanguage.ENGLISH)
-                        .setTargetLanguage(TranslateLanguage.GERMAN)
-                        .build();
-
-        final Translator englishGermanTranslator = Translation.getClient(options);
-        getLifecycle().addObserver(englishGermanTranslator);
-
-        DownloadConditions conditions = new DownloadConditions.Builder().requireWifi().build();
-        englishGermanTranslator.downloadModelIfNeeded(conditions)
-                .addOnSuccessListener(
-                        new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                languageTextView.setText("success");
-                            }
-                        }
-                ).addOnFailureListener(
-                        new OnFailureListener() {
-
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-
-                            }
-                        });
-
-        englishGermanTranslator.translate("hello")
-                .addOnSuccessListener(new OnSuccessListener<String>() {
-                    @Override
-                    public void onSuccess(String s) {
-                        languageTextView.setText(s);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception e) {
-
-                                                            }
-                                                        }
-
-        );
-//        translate.translate(
-//                "Hola Mundo!",
-//                Translate.TranslateOption.sourceLanguage("es"),
-//                Translate.TranslateOption.targetLanguage("de"),
-//                // Use "base" for standard edition, "nmt" for the premium model.
-//                Translate.TranslateOption.model("nmt"));
-//        Translation translation = translate.translate("¡Hola Mundo!");
-//        System.out.printf("Translated Text:\n\t%s\n", translation.getTranslatedText());
 
         RequestQueue queue = Volley.newRequestQueue(this);
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, detailURL, null, new Response.Listener<JSONObject>() {
@@ -136,11 +100,80 @@ public class DetailsActivity extends AppCompatActivity {
                     website = results.getString("website");
                     openNow = results.getJSONObject("opening_hours").getBoolean("open_now") ? "open" : "closed";
                     rating = results.getDouble("rating");
+                    String translateLanguage = languageMap.get(language);
+                    TranslatorOptions options = new TranslatorOptions.Builder()
+                            .setSourceLanguage(TranslateLanguage.ENGLISH)
+                            .setTargetLanguage(translateLanguage)
+                            .build();
+                    Translator translator = Translation.getClient(options);
+                    getLifecycle().addObserver(translator);
 
-                    restaurantAddress.setText(address);
-                    restaurantOpenNow.setText(openNow);
-                    restaurantWebsite.setText(website);
-                    restaurantRating.setText(String.valueOf(rating));
+                    DownloadConditions conditions = new DownloadConditions.Builder().requireWifi().build();
+                    translator.downloadModelIfNeeded(conditions)
+                            .addOnSuccessListener(
+                                    new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                        }
+                                    }
+                            ).addOnFailureListener(
+                            new OnFailureListener() {
+
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+
+                                }
+                            });
+                    translator.translate(address)
+                            .addOnSuccessListener(
+                                    new OnSuccessListener<String>() {
+                                        @Override
+                                        public void onSuccess(String s) {
+                                            restaurantAddress.setText(s);;
+                                        }
+                                    }
+                            ).addOnFailureListener(
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                }
+                            }
+                    );
+                    translator.translate(openNow)
+                            .addOnSuccessListener(
+                                    new OnSuccessListener<String>() {
+                                        @Override
+                                        public void onSuccess(String s) {
+                                            restaurantOpenNow.setText(s);;
+                                        }
+                                    }
+                            ).addOnFailureListener(
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                }
+                            }
+                    );
+
+                    translator.translate(name)
+                            .addOnSuccessListener(
+                                    new OnSuccessListener<String>() {
+                                        @Override
+                                        public void onSuccess(String s) {
+                                            restaurantName.setText(s);;
+                                        }
+                                    }
+                            ).addOnFailureListener(
+                            new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                }
+                            }
+                    );
+
+                        restaurantWebsite.setText(website);
+                        restaurantRating.setText(String.valueOf(rating));
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
