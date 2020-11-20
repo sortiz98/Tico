@@ -32,11 +32,17 @@ android {
         exclude 'META-INF/notice.txt'
         exclude 'META-INF/ASL2.0'
         exclude("META-INF/*.kotlin_module")
+        exclude 'project.properties'
     }
 }
 
 dependencies {
-    compile 'com.google.cloud:google-cloud-translate:1.95.4'
+    implementation('com.google.cloud:google-cloud-translate:1.12.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude group: 'org.json', module: 'json'
+    }
+    annotationProcessor 'com.google.cloud:google-cloud-translate:1.12.0'
+    implementation 'com.google.mlkit:translate:16.1.1'
     implementation 'com.android.volley:volley:1.1.1'
     implementation "androidx.cardview:cardview:1.0.0"
     implementation 'androidx.recyclerview:recyclerview:1.1.0'

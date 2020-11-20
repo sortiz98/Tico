@@ -1,5 +1,6 @@
 package com.example.tico;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -12,14 +13,21 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
+import com.google.mlkit.common.model.DownloadConditions;
+import com.google.mlkit.nl.translate.TranslateLanguage;
+import com.google.mlkit.nl.translate.Translation;
+import com.google.mlkit.nl.translate.Translator;
+import com.google.mlkit.nl.translate.TranslatorOptions;
 import com.squareup.picasso.Picasso;
 // import com.google.cloud.translate.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -45,6 +53,8 @@ public class DetailsActivity extends AppCompatActivity {
     private ImageView restaurantPhoto;
     // test detailURL: https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJaRrJa2Nx44kRPmjdbYFv-Ow&fields=name,rating,formatted_phone_number&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
 
+//    Translate translate = TranslateOptions.getDefaultInstance().getService();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +69,6 @@ public class DetailsActivity extends AppCompatActivity {
         restaurantPhoto = findViewById(R.id.imageView);
         languageTextView = findViewById(R.id.language);
 
-
         restaurantName.setText(restaurant.getName());
 
         photoURL = restaurant.getPhotoURL();
@@ -68,7 +77,46 @@ public class DetailsActivity extends AppCompatActivity {
         languageTextView.setText(language);
         Picasso.get().load(photoURL).into(restaurantPhoto);
 
-        Translate translate = TranslateOptions.getDefaultInstance().getService();
+        TranslatorOptions options = new TranslatorOptions.Builder()
+                        .setSourceLanguage(TranslateLanguage.ENGLISH)
+                        .setTargetLanguage(TranslateLanguage.GERMAN)
+                        .build();
+
+        final Translator englishGermanTranslator = Translation.getClient(options);
+        getLifecycle().addObserver(englishGermanTranslator);
+
+        DownloadConditions conditions = new DownloadConditions.Builder().requireWifi().build();
+        englishGermanTranslator.downloadModelIfNeeded(conditions)
+                .addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                languageTextView.setText("success");
+                            }
+                        }
+                ).addOnFailureListener(
+                        new OnFailureListener() {
+
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
+
+        englishGermanTranslator.translate("hello")
+                .addOnSuccessListener(new OnSuccessListener<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        languageTextView.setText(s);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+
+                                                            }
+                                                        }
+
+        );
 //        translate.translate(
 //                "Hola Mundo!",
 //                Translate.TranslateOption.sourceLanguage("es"),
