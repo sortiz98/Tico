@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                         JSONArray photos = restaurantInfo.getJSONArray("photos");
                         String photoReference = photos.getJSONObject(0).getString("photo_reference");
                         String photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
-                        restaurants.add(new Restaurant(name, placeID, photoURL, detailURL));
+                        restaurants.add(new Restaurant(name, language, placeID, photoURL, detailURL));
                     }
                     RestaurantAdapter adapter = new RestaurantAdapter(restaurants);
 

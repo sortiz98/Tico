@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class Restaurant implements Serializable {
     String name;
+    String language;
     String formattedAddress;
     String photoURL;
     String iconURL;
@@ -11,8 +12,9 @@ public class Restaurant implements Serializable {
     String id;
     boolean openNow;
 
-    public Restaurant(String name, String id, String photoURL, String detailURL) {
+    public Restaurant(String name, String language, String id, String photoURL, String detailURL) {
         this.name = name;
+        this.language = language;
         this.id = id;
         this.photoURL = photoURL;
         this.detailURL = detailURL;
@@ -28,6 +30,7 @@ public class Restaurant implements Serializable {
     }
 
     public String getName() { return this.name; }
+    public String getLanguage() { return this.language; }
     public String getAddress() {return this.formattedAddress; }
     public String getPhotoURL() {return this.photoURL; }
     public String getDetailURL() {return this.detailURL; }
