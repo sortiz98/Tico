@@ -12,6 +12,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -61,8 +64,17 @@ public class DetailsActivity extends AppCompatActivity {
         detailURL = restaurant.getDetailURL();
 
         Picasso.get().load(photoURL).into(restaurantPhoto);
-        Date now = new Date(); // used to determine open & closed times
 
+
+        Translate translate = TranslateOptions.getDefaultInstance().getService();
+        translate.translate(
+                "Hola Mundo!",
+                Translate.TranslateOption.sourceLanguage("es"),
+                Translate.TranslateOption.targetLanguage("de"),
+                // Use "base" for standard edition, "nmt" for the premium model.
+                Translate.TranslateOption.model("nmt"));
+        Translation translation = translate.translate("¡Hola Mundo!");
+        System.out.printf("Translated Text:\n\t%s\n", translation.getTranslatedText());
 
         RequestQueue queue = Volley.newRequestQueue(this);
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, detailURL, null, new Response.Listener<JSONObject>() {

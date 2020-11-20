@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     EditText locationEditText;
     String cuisine;
     String addressType;
+    String language;
     double longitude, latitude;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
     String address = ""; // might not need
@@ -65,6 +66,9 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        language = getIntent().getExtras().getString("language");
+        locationEditText = findViewById(R.id.location);
+        locationEditText.setText(language);
         restaurants = new ArrayList<>();
         addressType = "currentLocation"; // Default to use current location
         locationEditText = findViewById(R.id.location);
