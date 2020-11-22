@@ -125,6 +125,7 @@ public class DetailsActivity extends AppCompatActivity {
                     website = results.getString("website");
                     openNow = results.getJSONObject("opening_hours").getBoolean("open_now") ? "open" : "closed";
                     rating = results.getDouble("rating");
+                    // Can add more information to the map below
                     final Map<String, TextView> infoMap = new HashMap<String, TextView>() {{
                         put(address, restaurantAddress);
                         put(openNow, restaurantOpenNow);
