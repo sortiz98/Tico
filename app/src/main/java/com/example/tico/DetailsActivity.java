@@ -127,9 +127,9 @@ public class DetailsActivity extends AppCompatActivity {
                     rating = results.getDouble("rating");
                     // Can add more information to the map below
                     final Map<String, TextView> infoMap = new HashMap<String, TextView>() {{
-                        put(address, restaurantAddress);
+//                        put(address, restaurantAddress);
                         put(openNow, restaurantOpenNow);
-                        put(name, restaurantName);
+//                        put(name, restaurantName);
                     }};
 
                     for (final String info: infoMap.keySet()) {
@@ -144,6 +144,8 @@ public class DetailsActivity extends AppCompatActivity {
                             }
                         });
                     }
+                    restaurantName.setText(name);
+                    restaurantAddress.setText(address); 
                     restaurantWebsite.setText(website);
                     restaurantRating.setText(String.valueOf(rating));
                 } catch (JSONException e) {
