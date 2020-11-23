@@ -66,6 +66,7 @@ public class DetailsActivity extends AppCompatActivity {
         put("Spanish", TranslateLanguage.SPANISH);
         put("Japanese", TranslateLanguage.JAPANESE);
         put("Korean", TranslateLanguage.KOREAN);
+        put("Hindi", TranslateLanguage.HINDI);
     }};
 
 
@@ -145,7 +146,7 @@ public class DetailsActivity extends AppCompatActivity {
                         });
                     }
                     restaurantName.setText(name);
-                    restaurantAddress.setText(address); 
+                    restaurantAddress.setText(address);
                     restaurantWebsite.setText(website);
                     restaurantRating.setText(String.valueOf(rating));
                 } catch (JSONException e) {
