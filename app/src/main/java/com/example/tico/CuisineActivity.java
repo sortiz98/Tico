@@ -54,6 +54,16 @@ public class CuisineActivity extends AppCompatActivity {
                 languageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                        switch (position) {
+////                            case 0: language = "English";
+////                            case 1: language = "Chinese";
+////                            case 2: language = "German";
+////                            case 3: language = "French";
+////                            case 4: language = "Spanish";
+////                            case 5: language = "Japanese";
+////                            case 6: language = "Korean";
+////                            case 7: language = "Hindi";
+//                        }
                         language = (String) parent.getItemAtPosition(position);
                     }
 
@@ -63,7 +73,7 @@ public class CuisineActivity extends AppCompatActivity {
                     }
                 });
 
-                popupWindow.showAtLocation(findViewById(R.id.languageSelector), Gravity.CENTER, 0, 0);
+                popupWindow.showAtLocation(findViewById(R.id.languageSelector), Gravity.TOP, 0, 0);
             }
         });
 

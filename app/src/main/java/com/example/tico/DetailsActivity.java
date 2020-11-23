@@ -60,13 +60,13 @@ public class DetailsActivity extends AppCompatActivity {
 
     Map<String, String> languageMap = new HashMap<String, String>() {{
         put("English", TranslateLanguage.ENGLISH);
-        put("Chinese", TranslateLanguage.CHINESE);
-        put("German", TranslateLanguage.GERMAN);
-        put("French", TranslateLanguage.FRENCH);
-        put("Spanish", TranslateLanguage.SPANISH);
-        put("Japanese", TranslateLanguage.JAPANESE);
-        put("Korean", TranslateLanguage.KOREAN);
-        put("Hindi", TranslateLanguage.HINDI);
+        put("中文", TranslateLanguage.CHINESE);
+        put("Deutsch", TranslateLanguage.GERMAN);
+        put("Français", TranslateLanguage.FRENCH);
+        put("Español", TranslateLanguage.SPANISH);
+        put("日本語", TranslateLanguage.JAPANESE);
+        put("한국어", TranslateLanguage.KOREAN);
+        put("हिन्दी", TranslateLanguage.HINDI);
     }};
 
 
