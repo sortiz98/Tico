@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         language = getIntent().getExtras().getString("language");
         locationEditText = findViewById(R.id.location);
-        locationEditText.setText(language);
+        locationEditText.setText("Current Location");
         restaurants = new ArrayList<>();
         addressType = "currentLocation"; // Default to use current location
         locationEditText = findViewById(R.id.location);
