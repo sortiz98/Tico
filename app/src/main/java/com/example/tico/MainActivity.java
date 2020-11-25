@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     String language;
     double longitude, latitude;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
-    String address = ""; // only needed if user manually inputs address
+//    String address = ""; // only needed if user manually inputs address
     private FusedLocationProviderClient fusedLocationProviderClient;
     private String restaurant_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
     private String place_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
@@ -77,12 +77,24 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 viewSwitcher.showNext();
-                addressType = "inputLocation";
+            }
+        });
+
+        locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
+                    String address = locationEditText.getText().toString();
+                    processInputLocation(address);
+                    locationEditText.setText("clicked");
+                }
+                return false;
             }
         });
 
         if (addressType.equals("currentLocation")) processCurrentLocation();
-        if (addressType.equals("inputLocation")) processInputLocation();
 
 
         recyclerView = findViewById(R.id.rvRestaurants);
@@ -104,19 +116,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void processInputLocation() {
-        locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                    InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
-                    address = locationEditText.getText().toString();
-                    locationEditText.setText("clicked");
-                }
-                return false;
-            }
-        });
+    private void processInputLocation(String address) {
         RequestQueue queue = Volley.newRequestQueue(this);
         String place_Url = place_URL + address.replace("\\s+", "") + "&key=" + getResources().getString(R.string.Google_API_Key);
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, place_Url, null, new Response.Listener<JSONObject>() {
