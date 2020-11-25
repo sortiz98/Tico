@@ -46,9 +46,10 @@ public class MainActivity extends AppCompatActivity {
     String language;
     double longitude, latitude;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
-    String address = ""; // might not need
+    String address = ""; // only needed if user manually inputs address
     private FusedLocationProviderClient fusedLocationProviderClient;
     private String restaurant_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
+    private String place_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
     // Photo of restaurant (max-width of photo can be changed)
     private String photo_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&";
     // Text based search results
@@ -75,47 +76,15 @@ public class MainActivity extends AppCompatActivity {
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                viewSwitcher.showNext(); 
+                viewSwitcher.showNext();
+                addressType = "inputLocation";
             }
         });
+
         if (addressType.equals("currentLocation")) processCurrentLocation();
-
-//        locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-//                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-//                    InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
-//                    addressType = "inputLocation";
-//                }
-//                return false;
-//            }
-//        });
+        if (addressType.equals("inputLocation")) processInputLocation();
 
 
-        else if (addressType.equals("inputLocation")) {
-            RequestQueue queue = Volley.newRequestQueue(this);
-            String place_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address.replace("\\s+", "")
-                    + "&key=" + getResources().getString(R.string.Google_API_Key);
-            JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, place_URL, null, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    try {
-                        latitude = ((JSONArray) response.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lat");
-                        longitude = ((JSONArray) response.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lon");
-                        findRestaurantsByCoordinate(latitude, longitude);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    System.out.println("invalid address");
-                }
-            });
-            queue.add(stringRequest);
-        }
         recyclerView = findViewById(R.id.rvRestaurants);
     }
 
@@ -133,6 +102,41 @@ public class MainActivity extends AppCompatActivity {
                 findRestaurantsByCoordinate(latitude, longitude);
             }
         });
+    }
+
+    private void processInputLocation() {
+        locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
+                    address = locationEditText.getText().toString();
+                    locationEditText.setText("clicked");
+                }
+                return false;
+            }
+        });
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String place_Url = place_URL + address.replace("\\s+", "") + "&key=" + getResources().getString(R.string.Google_API_Key);
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, place_Url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    latitude = ((JSONArray) response.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lat");
+                    longitude = ((JSONArray) response.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lon");
+                    findRestaurantsByCoordinate(latitude, longitude);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                locationEditText.setText("Invalid Location");
+            }
+        });
+        queue.add(stringRequest);
     }
 
     private void findRestaurantsByCoordinate(double lat, double lon) {
