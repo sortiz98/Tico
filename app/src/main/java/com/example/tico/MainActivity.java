@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     String cuisine;
     String addressType;
     String language;
+    Context context;
     double longitude, latitude;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
 //    String address = ""; // only needed if user manually inputs address
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private String SEARCH_URL = "https://maps.googleapis.com/maps/api/place/textsearch/xml?query=restaurants+in+Sydney&key=YOUR_API_KEY";
     // Details of a restaurant
     private String detail_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
+    private String distance_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=";
     private ViewSwitcher viewSwitcher;
     JSONArray results;
     List<Restaurant> restaurants;
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         locationEditText = findViewById(R.id.locationEditText);
         viewSwitcher = findViewById(R.id.viewSwitcher);
         restaurants = new ArrayList<>();
+        context = this;
         addressType = "currentLocation"; // Default to use current location
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,8 +97,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (addressType.equals("currentLocation")) processCurrentLocation();
-
-
         recyclerView = findViewById(R.id.rvRestaurants);
     }
 
@@ -153,17 +154,21 @@ public class MainActivity extends AppCompatActivity {
                     // Outputs at most five restaurants
                     for (int i = 0; i < Math.min(results.length(), 5); i++) {
                         JSONObject restaurantInfo = results.getJSONObject(i);
+
                         String name = restaurantInfo.getString("name");
                         String placeID = restaurantInfo.getString("place_id");
+
                         String detailURL = detail_URL + "place_id=" + placeID + "&key=" + getResources().getString(R.string.Google_API_Key);
+                        String distanceURL = distance_URL + latitude + "," + longitude + "&destinations=place_id:" + placeID + "&key=" + getResources().getString(R.string.Google_API_Key);
+
                         // photo
                         JSONArray photos = restaurantInfo.getJSONArray("photos");
                         String photoReference = photos.getJSONObject(0).getString("photo_reference");
                         String photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
 
-                        restaurants.add(new Restaurant(name, language, placeID, photoURL, detailURL));
+                        restaurants.add(new Restaurant(name, language, placeID, photoURL, detailURL, distanceURL));
                     }
-                    adapter = new RestaurantAdapter(restaurants);
+                    adapter = new RestaurantAdapter(restaurants, context);
                     recyclerView.setAdapter(adapter);
                 } catch (JSONException e) {
                     e.printStackTrace();
