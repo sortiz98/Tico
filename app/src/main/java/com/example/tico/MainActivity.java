@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -38,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
+    Button locationButton;
     EditText locationEditText;
     String cuisine;
     String addressType;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private String SEARCH_URL = "https://maps.googleapis.com/maps/api/place/textsearch/xml?query=restaurants+in+Sydney&key=YOUR_API_KEY";
     // Details of a restaurant
     private String detail_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
-
+    private ViewSwitcher viewSwitcher;
     JSONArray results;
     List<Restaurant> restaurants;
     RecyclerView recyclerView;
@@ -66,37 +67,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         language = getIntent().getExtras().getString("language");
-        locationEditText = findViewById(R.id.location);
-        locationEditText.setText("Current Location");
+        locationButton = findViewById(R.id.locationButton);
+        locationEditText = findViewById(R.id.locationEditText);
+        viewSwitcher = findViewById(R.id.viewSwitcher);
         restaurants = new ArrayList<>();
         addressType = "currentLocation"; // Default to use current location
-        locationEditText = findViewById(R.id.location);
-        locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                    InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
-                    addressType = "inputLocation";
-                }
-                return false;
+            public void onClick(View view) {
+                viewSwitcher.showNext(); 
             }
         });
-        if (addressType.equals("currentLocation")) {
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
-            }
-            fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-                    findRestaurantsByCoordinate(latitude, longitude);
-                }
-            });
-        } else if (addressType.equals("inputLocation")) {
+        if (addressType.equals("currentLocation")) processCurrentLocation();
+
+//        locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+//                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+//                    InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
+//                    addressType = "inputLocation";
+//                }
+//                return false;
+//            }
+//        });
+
+
+        else if (addressType.equals("inputLocation")) {
             RequestQueue queue = Volley.newRequestQueue(this);
             String place_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address.replace("\\s+", "")
                     + "&key=" + getResources().getString(R.string.Google_API_Key);
@@ -120,6 +117,22 @@ public class MainActivity extends AppCompatActivity {
             queue.add(stringRequest);
         }
         recyclerView = findViewById(R.id.rvRestaurants);
+    }
+
+    private void processCurrentLocation() {
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
+        }
+        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                findRestaurantsByCoordinate(latitude, longitude);
+            }
+        });
     }
 
     private void findRestaurantsByCoordinate(double lat, double lon) {
