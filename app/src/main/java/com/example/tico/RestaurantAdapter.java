@@ -68,6 +68,15 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         return restaurants.size();
     }
 
+    public void clearRestaurants() {
+        int size = this.restaurants.size();
+        if (size > 0) {
+            for (int i = 0; i < size; i++) {
+                restaurants.remove(0);
+            }
+            this.notifyItemRangeRemoved(0, size);
+        }
+    }
 //    public void setPhoto(final String name, String url, final ImageView imageViewPhoto) {
 //        RequestQueue queue = Volley.newRequestQueue(this);
 //        ImageRequest request = new ImageRequest(url,

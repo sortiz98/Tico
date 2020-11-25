@@ -59,9 +59,8 @@ public class MainActivity extends AppCompatActivity {
     private ViewSwitcher viewSwitcher;
     JSONArray results;
     List<Restaurant> restaurants;
+    RestaurantAdapter adapter;
     RecyclerView recyclerView;
-
-    // "https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0"
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,12 +82,12 @@ public class MainActivity extends AppCompatActivity {
         locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                if ((keyEvent != null && keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
                     InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                     inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
                     String address = locationEditText.getText().toString();
                     processInputLocation(address);
-                    locationEditText.setText("clicked");
+//                    locationEditText.setText("clicked");
                 }
                 return false;
             }
@@ -100,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.rvRestaurants);
     }
 
+    // https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
     private void processCurrentLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // https://maps.googleapis.com/maps/api/geocode/json?address=2301durantAve&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
     private void processInputLocation(String address) {
         RequestQueue queue = Volley.newRequestQueue(this);
         String place_Url = place_URL + address.replace("\\s+", "") + "&key=" + getResources().getString(R.string.Google_API_Key);
@@ -124,16 +125,15 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 try {
                     latitude = ((JSONArray) response.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lat");
-                    longitude = ((JSONArray) response.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lon");
+                    longitude = ((JSONArray) response.get("results")).getJSONObject(0).getJSONObject("geometry").getJSONObject("location").getDouble("lng");
                     findRestaurantsByCoordinate(latitude, longitude);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    locationEditText.setText("Invalid Location");
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                locationEditText.setText("Invalid Location");
             }
         });
         queue.add(stringRequest);
@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void findRestaurantsByCoordinate(double lat, double lon) {
         RequestQueue queue = Volley.newRequestQueue(this);
+        restaurants = new ArrayList<>();
         cuisine = getIntent().getExtras().getString("cuisine");
         String gps_URL = "query=" + cuisine + "+restaurants&location=" + lat + "," + lon + "&radius=1500&type=restaurant";
         String full_URL = restaurant_URL + gps_URL + "&key=" + getResources().getString(R.string.Google_API_Key);
@@ -159,10 +160,10 @@ public class MainActivity extends AppCompatActivity {
                         JSONArray photos = restaurantInfo.getJSONArray("photos");
                         String photoReference = photos.getJSONObject(0).getString("photo_reference");
                         String photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
+
                         restaurants.add(new Restaurant(name, language, placeID, photoURL, detailURL));
                     }
-                    RestaurantAdapter adapter = new RestaurantAdapter(restaurants);
-
+                    adapter = new RestaurantAdapter(restaurants);
                     recyclerView.setAdapter(adapter);
                 } catch (JSONException e) {
                     e.printStackTrace();
