@@ -37,11 +37,13 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView restaurantNameTv;
         TextView restaurantDistanceTv;
+        TextView restaurantTimeTv;
         ImageView restaurantPhotoIv;
         public ViewHolder(View itemView) {
             super(itemView);
             this.restaurantNameTv = itemView.findViewById(R.id.restaurantName);
             this.restaurantDistanceTv = itemView.findViewById(R.id.restaurantDistance);
+            this.restaurantTimeTv = itemView.findViewById(R.id.restaurantTime);
             this.restaurantPhotoIv = itemView.findViewById(R.id.restaurantPhoto);
         }
     }
@@ -64,6 +66,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     public void onBindViewHolder(RestaurantAdapter.ViewHolder holder, int position) {
         TextView nameTv = holder.restaurantNameTv;
         final TextView distanceTv = holder.restaurantDistanceTv;
+        final TextView timeTv = holder.restaurantTimeTv;
         ImageView photoIv = holder.restaurantPhotoIv;
         final Restaurant restaurant = restaurants.get(position);
         nameTv.setText(restaurant.getName());
@@ -89,7 +92,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                     String time = distanceInformation.getJSONObject("duration").getString("text");
                     restaurant.distance = Double.valueOf(distance.split("\\s")[0]);
                     restaurant.time = Double.valueOf(distance.split("\\s")[0]);
-                    distanceTv.setText(distance + " " + time);
+                    distanceTv.setText(distance);
+                    timeTv.setText(time);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
