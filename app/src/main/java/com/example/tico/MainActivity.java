@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         cuisine = getIntent().getExtras().getString("cuisine");
         String gps_URL = "query=" + cuisine + "+restaurants&location=" + lat + "," + lon + "&radius=1500&type=restaurant";
         String full_URL = restaurant_URL + gps_URL + "&key=" + getResources().getString(R.string.Google_API_Key);
-        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, full_URL, null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, full_URL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 String jsonError = new String(error.networkResponse.data);
             }
         });
-        queue.add(stringRequest);
+        queue.add(request);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 }

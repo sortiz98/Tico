@@ -11,6 +11,8 @@ public class Restaurant implements Serializable {
     String detailURL;
     String distanceURL;
     String id;
+    double distance; // distance from user's location to the restaurant
+    double time;
     boolean openNow;
 
     public Restaurant(String name, String language, String id, String photoURL, String detailURL, String distanceURL) {
@@ -40,4 +42,6 @@ public class Restaurant implements Serializable {
     public String getIconURL() {return this.iconURL; }
     public String getID() {return this.id; }
     public boolean open() {return this.openNow; }
+    public double getDistance() {return this.distance; }
+    public double getTime() {return this.time; }
 }

@@ -87,6 +87,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                     JSONObject distanceInformation = response.getJSONArray("rows").getJSONObject(0).getJSONArray("elements").getJSONObject(0);
                     String distance = distanceInformation.getJSONObject("distance").getString("text");
                     String time = distanceInformation.getJSONObject("duration").getString("text");
+                    restaurant.distance = Double.valueOf(distance.split("\\s")[0]);
+                    restaurant.time = Double.valueOf(distance.split("\\s")[0]);
                     distanceTv.setText(distance + " " + time);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -115,23 +117,4 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             this.notifyItemRangeRemoved(0, size);
         }
     }
-//    public void setPhoto(final String name, String url, final ImageView imageViewPhoto) {
-//        RequestQueue queue = Volley.newRequestQueue(this);
-//        ImageRequest request = new ImageRequest(url,
-//                new Response.Listener<Bitmap>() {
-//                    @Override
-//                    public void onResponse(Bitmap response) {
-//                        imageViewPhoto.setImageBitmap(response);
-//                        photos.put(name, response);
-//                    }
-//                }, 270, 350, ImageView.ScaleType.CENTER_CROP, Bitmap.Config.RGB_565,
-//                new Response.ErrorListener() {
-//                    @Override
-//                    public void onErrorResponse(VolleyError error) {
-//                        Log.e("setPhoto", error.toString());
-//                    }
-//                });
-//
-//        queue.add(request);
-//    }
 }
