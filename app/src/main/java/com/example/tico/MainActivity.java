@@ -36,10 +36,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     Button locationButton;
+    Button sortDistanceButton;
     EditText locationEditText;
     String cuisine;
     String addressType;
@@ -70,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         language = getIntent().getExtras().getString("language");
         locationButton = findViewById(R.id.locationButton);
+        sortDistanceButton = findViewById(R.id.sortDistanceButton);
         locationEditText = findViewById(R.id.locationEditText);
         viewSwitcher = findViewById(R.id.viewSwitcher);
         restaurants = new ArrayList<>();
@@ -90,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
                     inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
                     String address = locationEditText.getText().toString();
                     processInputLocation(address);
-//                    locationEditText.setText("clicked");
                 }
                 return false;
             }
@@ -98,6 +101,16 @@ public class MainActivity extends AppCompatActivity {
 
         if (addressType.equals("currentLocation")) processCurrentLocation();
         recyclerView = findViewById(R.id.rvRestaurants);
+
+        sortDistanceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sortByDistance();
+                adapter = new RestaurantAdapter(restaurants, context);
+                recyclerView.setAdapter(adapter);
+            }
+        });
+
     }
 
     // https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
@@ -183,4 +196,20 @@ public class MainActivity extends AppCompatActivity {
         queue.add(request);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
+
+    private void sortByDistance() {
+        Collections.sort(restaurants, new Comparator<Restaurant>() {
+            @Override
+            public int compare(Restaurant restaurantOne, Restaurant restaurantTwo) {
+                if (restaurantOne.distance > restaurantTwo.distance) return 1;
+                else if (restaurantOne.distance < restaurantTwo.distance) return -1;
+                else return 0;
+            }
+        });
+    }
+
+    private void sortByTime() {
+        recyclerView.setAdapter(null);
+    }
+
 }
