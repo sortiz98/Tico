@@ -110,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView.setAdapter(adapter);
             }
         });
-
     }
 
     // https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
@@ -201,15 +200,10 @@ public class MainActivity extends AppCompatActivity {
         Collections.sort(restaurants, new Comparator<Restaurant>() {
             @Override
             public int compare(Restaurant restaurantOne, Restaurant restaurantTwo) {
-                if (restaurantOne.distance > restaurantTwo.distance) return 1;
-                else if (restaurantOne.distance < restaurantTwo.distance) return -1;
+                if (restaurantOne.getDistance() > restaurantTwo.getDistance()) return 1;
+                else if (restaurantOne.getDistance() < restaurantTwo.getDistance()) return -1;
                 else return 0;
             }
         });
     }
-
-    private void sortByTime() {
-        recyclerView.setAdapter(null);
-    }
-
 }

@@ -24,15 +24,8 @@ public class Restaurant implements Serializable {
         this.distanceURL = distanceURL;
     }
 
-    public Restaurant(String name, String formattedAddress, String photoURL, String iconURL, String id, boolean openNow) {
-        this.name = name;
-        this.formattedAddress = formattedAddress;
-        this.photoURL = photoURL;
-        this.iconURL = iconURL;
-        this.id = id;
-        this.openNow = openNow;
-    }
 
+    /** A list of getter methods */
     public String getName() { return this.name; }
     public String getLanguage() { return this.language; }
     public String getAddress() {return this.formattedAddress; }
