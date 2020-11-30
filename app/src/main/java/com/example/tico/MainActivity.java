@@ -106,8 +106,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 sortByDistance();
-                adapter = new RestaurantAdapter(restaurants, context);
-                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
             }
         });
     }
