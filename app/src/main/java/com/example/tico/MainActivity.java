@@ -204,5 +204,6 @@ public class MainActivity extends AppCompatActivity {
                 else return 0;
             }
         });
+        adapter.notifyDataSetChanged();
     }
 }
