@@ -110,6 +110,7 @@ public class DetailsActivity extends AppCompatActivity {
         language = restaurant.getLanguage();
         languageTextView.setText(language); // Can be deleted
 
+        restaurantName.setText(name);
         Picasso.get().load(photoURL).into(restaurantPhoto);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
@@ -145,36 +146,38 @@ public class DetailsActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 try {
                     results = response.getJSONObject("result");
-                    address = results.getString("formatted_address");
-
-                    openNow = results.getJSONObject("opening_hours").getBoolean("open_now") ? "open" : "closed";
-                    rating = results.getDouble("rating");
-                    // Can add more information to the map below
-                    final Map<String, TextView> infoMap = new HashMap<String, TextView>() {{
-                        put(openNow, restaurantOpenNow);
-                    }};
-                    for (final String info: infoMap.keySet()) {
-                        translator.translate(info).addOnSuccessListener(new OnSuccessListener<String>() {
-                            @Override
-                            public void onSuccess(String s) {
-                                infoMap.get(info).setText(s);
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                            }
-                        });
-                    }
-                    restaurantName.setText(name);
-                    restaurantAddress.setText(address);
-                    restaurantRating.setText(String.valueOf(rating));
+                    website = results.getString("website");
+                    restaurantWebsite.setText(website);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 try {
                     results = response.getJSONObject("result");
-                    website = results.getString("website");
-                    restaurantWebsite.setText(website);
+                    address = results.getString("formatted_address");
+                    restaurantAddress.setText(address);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    results = response.getJSONObject("result");
+                    openNow = results.getJSONObject("opening_hours").getBoolean("open_now") ? "open" : "closed";
+                    translator.translate(openNow).addOnSuccessListener(new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            restaurantOpenNow.setText(s);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    results = response.getJSONObject("result");
+                    rating = results.getDouble("rating");
+                    restaurantRating.setText(String.valueOf(rating));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
