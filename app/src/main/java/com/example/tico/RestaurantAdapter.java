@@ -58,7 +58,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View restaurantView = inflater.inflate(R.layout.card_layout, parent, false);
+        View restaurantView = inflater.inflate(R.layout.cards_layout, parent, false);
         return new ViewHolder(restaurantView);
     }
 
@@ -91,9 +91,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                     String distance = distanceInformation.getJSONObject("distance").getString("text");
                     String time = distanceInformation.getJSONObject("duration").getString("text");
                     restaurant.distance = Double.valueOf(distance.split("\\s")[0]);
-                    restaurant.time = Double.valueOf(distance.split("\\s")[0]);
-                    distanceTv.setText(distance);
-                    timeTv.setText(time);
+                    restaurant.time = Double.valueOf(time.split("\\s")[0]);
+                    distanceTv.setText(String.valueOf(restaurant.getDistance()));
+                    timeTv.setText(String.valueOf((int) restaurant.getTime()));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -121,4 +121,5 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             this.notifyItemRangeRemoved(0, size);
         }
     }
+
 }

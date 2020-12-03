@@ -10,74 +10,78 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#F4F5F8"
         tools:context=".CuisineActivity">
 
         <Button
             android:id="@+id/chinese"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
-            android:layout_marginBottom="50dp"
-            android:text="Chinese"
-            app:layout_constraintBottom_toTopOf="@+id/mexican"
+            android:layout_width="160dp"
+            android:layout_height="232dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="38dp"
+            android:foreground="@drawable/chinese"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintTop_toBottomOf="@+id/indian" />
+
+        <Button
+            android:id="@+id/mexican"
+            android:layout_width="160dp"
+            android:layout_height="232dp"
+            android:layout_marginStart="38dp"
+            android:layout_marginTop="5dp"
+            android:foreground="@drawable/mexican"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/japanese" />
+
+        <Button
+            android:id="@+id/japanese"
+            android:layout_width="160dp"
+            android:layout_height="232dp"
+            android:layout_marginStart="38dp"
+            android:layout_marginTop="155dp"
+            android:foreground="@drawable/japanese"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/mexican"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="64dp"
-            android:text="Mexican"
-            app:layout_constraintBottom_toTopOf="@+id/japanese"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
-            android:id="@+id/japanese"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="41dp"
-            android:text="Japanese"
-            app:layout_constraintBottom_toTopOf="@+id/indian"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
             android:id="@+id/indian"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="39dp"
-            android:text="Indian"
-            app:layout_constraintBottom_toTopOf="@+id/korean"
+            android:layout_width="160dp"
+            android:layout_height="232dp"
+            android:layout_marginTop="155dp"
+            android:layout_marginEnd="38dp"
+            android:foreground="@drawable/indian"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/korean"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="164dp"
+            android:layout_marginBottom="4dp"
             android:text="korean"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
+            app:layout_constraintHorizontal_bias="0.684"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/languageSelector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="74dp"
-            android:layout_marginBottom="71dp"
             android:text="Language"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.253"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="410dp"
+            android:layout_height="144dp"
+            android:layout_marginTop="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/korean" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/intro" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

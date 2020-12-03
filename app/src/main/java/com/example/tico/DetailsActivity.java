@@ -2,8 +2,13 @@ package com.example.tico;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,6 +39,8 @@ import java.util.Map;
 
 public class DetailsActivity extends AppCompatActivity {
 
+    public static final String EXTRA_MESSAGE = "com.example.tico.MESSAGE";
+
     // Details of a restaurant
     private String detailURL;
     private String photoURL;
@@ -56,7 +63,10 @@ public class DetailsActivity extends AppCompatActivity {
 
     private ImageView restaurantPhoto;
 
+    private static Bundle state;
+
     private Translator translator;
+
 
     Map<String, String> languageMap = new HashMap<String, String>() {{
         put("English", TranslateLanguage.ENGLISH);
@@ -77,7 +87,17 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
 
-        restaurant = (Restaurant) getIntent().getSerializableExtra("restaurant");
+        try {
+            Intent i = getIntent();
+            restaurant = (Restaurant) getIntent().getSerializableExtra("restaurant");
+            System.out.print(restaurant);
+        } catch (Exception e) {
+            restaurant = (Restaurant) state.getSerializable("restaurant");
+        }
+        if (restaurant == null) {
+            restaurant = (Restaurant) state.getSerializable("restaurant");
+        }
+
         restaurantName = findViewById(R.id.name);
         restaurantAddress = findViewById(R.id.address);
         restaurantOpenNow = findViewById(R.id.openNow);
@@ -86,6 +106,7 @@ public class DetailsActivity extends AppCompatActivity {
         restaurantPhoto = findViewById(R.id.imageView);
         languageTextView = findViewById(R.id.language);
 
+
         name = restaurant.getName();
         photoURL = restaurant.getPhotoURL();
         detailURL = restaurant.getDetailURL();
@@ -93,6 +114,11 @@ public class DetailsActivity extends AppCompatActivity {
         languageTextView.setText(language); // Can be deleted
 
         Picasso.get().load(photoURL).into(restaurantPhoto);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
+        setSupportActionBar(toolbar);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         String translateLanguage = languageMap.get(language);
         TranslatorOptions options = new TranslatorOptions.Builder()
@@ -162,4 +188,45 @@ public class DetailsActivity extends AppCompatActivity {
         queue.add(stringRequest);
 
     }
+
+    public void getMap(View view) {
+        Intent intent = new Intent(this, MapActivity.class);
+        intent.putExtra(EXTRA_MESSAGE, address);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle sstate) {
+        super.onSaveInstanceState(sstate);
+
+        // Save list state
+        sstate.putSerializable("restaurant", restaurant);
+        state.putSerializable("restaurant", restaurant);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+
+        // Retrieve list state and list/item positions
+        if(state != null)
+            restaurant = (Restaurant) state.getSerializable("restaurant");
+    }
+
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        state = new Bundle();
+        state.putSerializable("restaurant", restaurant);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.example.tico;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -67,49 +69,82 @@ public class MainActivity extends AppCompatActivity {
     RestaurantAdapter adapter;
     RecyclerView recyclerView;
 
+    private final String KEY_RECYCLER_STATE = "recycler_state";
+    private static Bundle mBundleRecyclerViewState;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        language = getIntent().getExtras().getString("language");
-        locationButton = findViewById(R.id.locationButton);
-        sortDistanceButton = findViewById(R.id.sortDistanceButton);
-        locationEditText = findViewById(R.id.locationEditText);
-        viewSwitcher = findViewById(R.id.viewSwitcher);
-        restaurants = new ArrayList<>();
+
         context = this;
-        addressType = "currentLocation"; // Default to use current location
-        locationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                viewSwitcher.showNext();
-            }
-        });
-
-        locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if ((keyEvent != null && keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                    InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
-                    String address = locationEditText.getText().toString();
-                    processInputLocation(address);
-                }
-                return false;
-            }
-        });
-
-        if (addressType.equals("currentLocation")) processCurrentLocation();
         recyclerView = findViewById(R.id.rvRestaurants);
 
-        sortDistanceButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sortByDistance();
-                adapter = new RestaurantAdapter(restaurants, context);
-                recyclerView.setAdapter(adapter);
+
+            try {
+                language = getIntent().getExtras().getString("language");
+                cuisine = getIntent().getExtras().getString("cuisine");
+                addressType = "currentLocation"; // Default to use current location
+            } catch (Exception e) {
+                /*recyclerView.setAdapter(new RestaurantAdapter(new ArrayList<Restaurant>(), context));
+            Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
+            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+            recyclerView.setLayoutManager(layoutManager);
+            RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
+            lm.onRestoreInstanceState(listState);*/
+                language = mBundleRecyclerViewState.getString("lang");
+                cuisine = mBundleRecyclerViewState.getString("cuisine");
+                addressType = mBundleRecyclerViewState.getString("address");
             }
-        });
+
+
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+            locationButton = findViewById(R.id.locationButton);
+            sortDistanceButton = findViewById(R.id.sortDistanceButton);
+            locationEditText = findViewById(R.id.locationEditText);
+            viewSwitcher = findViewById(R.id.viewSwitcher);
+            restaurants = new ArrayList<>();
+            locationButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    viewSwitcher.showNext();
+                }
+            });
+
+            locationEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                    if ((keyEvent != null && keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
+                        addressType = locationEditText.getText().toString();
+                        processInputLocation(addressType);
+                    }
+                    return false;
+                }
+            });
+
+
+            sortDistanceButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount()-1);
+                    sortByDistance();
+                    adapter.notifyDataSetChanged();
+                    recyclerView.smoothScrollToPosition(0);
+                }
+            });
+        if (addressType.equals("currentLocation")) {
+            processCurrentLocation();
+        } else {
+            processInputLocation(addressType);
+        }
+
+
     }
 
     // https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
@@ -155,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
     private void findRestaurantsByCoordinate(double lat, double lon) {
         RequestQueue queue = Volley.newRequestQueue(this);
         restaurants = new ArrayList<>();
-        cuisine = getIntent().getExtras().getString("cuisine");
         String gps_URL = "query=" + cuisine + "+restaurants&location=" + lat + "," + lon + "&radius=1500&type=restaurant";
         String full_URL = restaurant_URL + gps_URL + "&key=" + getResources().getString(R.string.Google_API_Key);
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, full_URL, null, new Response.Listener<JSONObject>() {
@@ -164,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     results = (JSONArray) response.get("results");
                     // Outputs at most five restaurants
-                    for (int i = 0; i < Math.min(results.length(), 5); i++) {
+                    for (int i = 0; i < Math.min(results.length(), 9); i++) {
                         JSONObject restaurantInfo = results.getJSONObject(i);
 
                         String name = restaurantInfo.getString("name");
@@ -182,6 +216,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     adapter = new RestaurantAdapter(restaurants, context);
                     recyclerView.setAdapter(adapter);
+                    recyclerView.smoothScrollToPosition(14);
+                    recyclerView.smoothScrollToPosition(0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -205,5 +241,52 @@ public class MainActivity extends AppCompatActivity {
                 else return 0;
             }
         });
+    }
+
+   /* @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+
+        // Save list state
+        mListState = mLayoutManager.onSaveInstanceState();
+        state.putParcelable(LIST_STATE_KEY, mListState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+
+        // Retrieve list state and list/item positions
+        if(state != null)
+            mListState = state.getParcelable(LIST_STATE_KEY);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mListState != null) {
+            mLayoutManager.onRestoreInstanceState(mListState);
+        }
+    }*/
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        // save RecyclerView state
+        mBundleRecyclerViewState = new Bundle();
+        Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
+        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
+        mBundleRecyclerViewState.putString("lang", language);
+        mBundleRecyclerViewState.putString("cuisine", cuisine);
+        mBundleRecyclerViewState.putString("address", addressType);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
     }
 }
