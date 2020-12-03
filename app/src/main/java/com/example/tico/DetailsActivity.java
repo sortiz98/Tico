@@ -3,6 +3,7 @@ package com.example.tico;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -64,6 +65,8 @@ public class DetailsActivity extends AppCompatActivity {
 
     private Translator translator;
 
+    private Button photoButton;
+
 
     Map<String, String> languageMap = new HashMap<String, String>() {{
         put("English", TranslateLanguage.ENGLISH);
@@ -103,6 +106,7 @@ public class DetailsActivity extends AppCompatActivity {
         restaurantPhoto = findViewById(R.id.imageView);
         languageTextView = findViewById(R.id.language);
 
+        photoButton = findViewById(R.id.photos);
 
         name = restaurant.getName();
         photoURL = restaurant.getPhotoURL();
@@ -116,6 +120,15 @@ public class DetailsActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
         //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        photoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), PhotoActivity.class);
+                intent.putExtra("restaurant", restaurant);
+                startActivity(intent);
+            }
+        });
 
 
         String translateLanguage = languageMap.get(language);
