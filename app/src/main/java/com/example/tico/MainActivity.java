@@ -41,6 +41,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    int count = 0;
     Button locationButton;
     Button sortDistanceButton;
     EditText locationEditText;
@@ -181,6 +182,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     adapter = new RestaurantAdapter(restaurants, context);
                     recyclerView.setAdapter(adapter);
+                    recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
+                    recyclerView.smoothScrollToPosition(0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -204,6 +207,5 @@ public class MainActivity extends AppCompatActivity {
                 else return 0;
             }
         });
-        adapter.notifyDataSetChanged();
     }
 }

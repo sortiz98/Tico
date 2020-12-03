@@ -91,7 +91,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                     String distance = distanceInformation.getJSONObject("distance").getString("text");
                     String time = distanceInformation.getJSONObject("duration").getString("text");
                     restaurant.distance = Double.valueOf(distance.split("\\s")[0]);
-                    restaurant.time = Double.valueOf(distance.split("\\s")[0]);
+                    restaurant.time = Double.valueOf(time.split("\\s")[0]);
                     distanceTv.setText(distance);
                     timeTv.setText(time);
                 } catch (JSONException e) {
