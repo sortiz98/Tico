@@ -1,16 +1,14 @@
 package com.example.tico;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,21 +18,20 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.translate.Translate;
-import com.google.cloud.translate.TranslateOptions;
 import com.google.mlkit.common.model.DownloadConditions;
 import com.google.mlkit.nl.translate.TranslateLanguage;
 import com.google.mlkit.nl.translate.Translation;
 import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
 import com.squareup.picasso.Picasso;
-// import com.google.cloud.translate.*;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+
+// import com.google.cloud.translate.*;
 
 
 public class DetailsActivity extends AppCompatActivity {
@@ -149,14 +146,13 @@ public class DetailsActivity extends AppCompatActivity {
                 try {
                     results = response.getJSONObject("result");
                     address = results.getString("formatted_address");
-                    website = results.getString("website");
+
                     openNow = results.getJSONObject("opening_hours").getBoolean("open_now") ? "open" : "closed";
                     rating = results.getDouble("rating");
                     // Can add more information to the map below
                     final Map<String, TextView> infoMap = new HashMap<String, TextView>() {{
                         put(openNow, restaurantOpenNow);
                     }};
-
                     for (final String info: infoMap.keySet()) {
                         translator.translate(info).addOnSuccessListener(new OnSuccessListener<String>() {
                             @Override
@@ -171,8 +167,14 @@ public class DetailsActivity extends AppCompatActivity {
                     }
                     restaurantName.setText(name);
                     restaurantAddress.setText(address);
-                    restaurantWebsite.setText(website);
                     restaurantRating.setText(String.valueOf(rating));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    results = response.getJSONObject("result");
+                    website = results.getString("website");
+                    restaurantWebsite.setText(website);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

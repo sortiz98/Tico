@@ -3,10 +3,6 @@ package com.example.tico;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.RadioGroup;
-import android.widget.Switch;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,16 +21,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.chip.Chip;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * An activity that displays a Google map with a marker (pin) to indicate a particular location.
