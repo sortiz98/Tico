@@ -154,9 +154,7 @@ public class DetailsActivity extends AppCompatActivity {
                     rating = results.getDouble("rating");
                     // Can add more information to the map below
                     final Map<String, TextView> infoMap = new HashMap<String, TextView>() {{
-//                        put(address, restaurantAddress);
                         put(openNow, restaurantOpenNow);
-//                        put(name, restaurantName);
                     }};
 
                     for (final String info: infoMap.keySet()) {

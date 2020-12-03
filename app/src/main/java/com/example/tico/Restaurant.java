@@ -3,25 +3,28 @@ package com.example.tico;
 import java.io.Serializable;
 
 public class Restaurant implements Serializable {
-    String name;
-    String language;
-    String formattedAddress;
+    String name; // name of the restaurant
+    String language; // current user language
+    String formattedAddress; // address
     String photoURL;
-    String iconURL;
     String detailURL;
     String distanceURL;
-    String id;
+    String id; // place id
     double distance; // distance from user's location to the restaurant
-    double time;
-    boolean openNow;
+    double time; // time from user's location to the restaurant
+    boolean openNow; // whether the restaurant is open
 
     public Restaurant(String name, String language, String id, String photoURL, String detailURL, String distanceURL) {
         this.name = name;
         this.language = language;
-        this.id = id;
+        this.formattedAddress = "";
         this.photoURL = photoURL;
         this.detailURL = detailURL;
         this.distanceURL = distanceURL;
+        this.id = id;
+        this.distance = 0.0;
+        this.time = 0.0;
+        this.openNow = false;
     }
 
 
@@ -32,7 +35,6 @@ public class Restaurant implements Serializable {
     public String getPhotoURL() {return this.photoURL; }
     public String getDetailURL() {return this.detailURL; }
     public String getDistanceURL() {return this.distanceURL;}
-    public String getIconURL() {return this.iconURL; }
     public String getID() {return this.id; }
     public boolean open() {return this.openNow; }
     public double getDistance() {return this.distance; }

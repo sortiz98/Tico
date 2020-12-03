@@ -43,6 +43,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    int count = 0;
     Button locationButton;
     Button sortDistanceButton;
     EditText locationEditText;
@@ -145,6 +146,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        sortDistanceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sortByDistance();
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     // https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
@@ -216,7 +224,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                     adapter = new RestaurantAdapter(restaurants, context);
                     recyclerView.setAdapter(adapter);
-                    recyclerView.smoothScrollToPosition(14);
+
+                    recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
                     recyclerView.smoothScrollToPosition(0);
                 } catch (JSONException e) {
                     e.printStackTrace();
