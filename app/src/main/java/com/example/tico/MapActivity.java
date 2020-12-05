@@ -59,11 +59,12 @@ public class MapActivity extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         Intent intent = getIntent();
         String location = intent.getStringExtra(DetailsActivity.EXTRA_MESSAGE);
+        String name = intent.getStringExtra("name");
         //String location= "2967 Vanport Dr, San Jose, CA, 95122";
-        addLocation(location, googleMap);
+        addLocation(location, googleMap, name);
     }
 
-    public void addLocation(final String address, final GoogleMap googleMap) {
+    public void addLocation(final String address, final GoogleMap googleMap, final String name) {
         String url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + getResources().getString(R.string.Google_API_Key);
         JsonObjectRequest locationRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
@@ -78,8 +79,8 @@ public class MapActivity extends AppCompatActivity
                             googleMap.addMarker(new MarkerOptions()
                                     .position(current)
                                     .icon(bitmapDescriptor)
-                                    .title("Selected Location")
-                                    .snippet(address)).showInfoWindow();
+                                    .title(name)
+                                    .snippet(address.split(",")[0])).showInfoWindow();
                             //googleMap.moveCamera(CameraUpdateFactory.newLatLng(current));
                             float zoomLevel = 11.5f; //This goes up to 21
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, zoomLevel));

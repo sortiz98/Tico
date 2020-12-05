@@ -12,24 +12,39 @@
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="83dp"
         android:layout_height="38dp"
-        android:layout_marginTop="83dp"
+        android:layout_marginTop="80dp"
         android:layout_marginEnd="70dp"
         android:autofillHints=""
+        android:background="@android:color/transparent"
         android:ems="10"
-        android:foreground="@drawable/distance_selected"
-        android:hint="Sort By Distance"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:fontFamily="@font/open_sans"
+        android:text="Distance"
         android:textAlignment="center"
-        android:textColor="#000000"
+        android:textAllCaps="false"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="#06A3BB"
+        android:textSize="17sp"
+        android:typeface="normal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/sortAuthenticityButton"
         android:layout_width="113dp"
         android:layout_height="38dp"
         android:layout_marginStart="70dp"
-        android:layout_marginTop="83dp"
-        android:foreground="@drawable/authenticity"
+        android:layout_marginTop="80dp"
+        android:background="@android:color/transparent"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:fontFamily="@font/open_sans"
+        android:text="Authenticity"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="#8C8C8C"
+        android:textSize="17sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -69,11 +84,10 @@
         app:srcCompat="@drawable/line" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/mealText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:text="mexican meals near"
         android:textAlignment="center"
         android:textAllCaps="true"
         android:textColor="#018599"
@@ -82,15 +96,52 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/auth_underline"
+        android:layout_width="110dp"
+        android:layout_height="6dp"
+        android:layout_marginStart="73dp"
+        android:layout_marginTop="110dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:color/transparent" />
+
+    <ImageView
+        android:id="@+id/distance_underline"
+        android:layout_width="81dp"
+        android:layout_height="6dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginEnd="69dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/distance_underline" />
+
+    <Button
+        android:id="@+id/locationButton"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="36dp"
+        android:autofillHints=""
+        android:background="#FFFFFF"
+        android:ems="10"
+        android:foreground="@drawable/down"
+        android:hint="i"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        app:layout_constraintStart_toEndOf="@id/dummyText"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/dummyText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="35dp"
         android:fontFamily="@font/open_sans_bold"
-        android:text="123 Example St"
+        android:text="Current Location"
         android:textAlignment="center"
-        android:textColor="#000000"
+        android:textColor="#F1F1F1"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -103,37 +154,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/locationButton"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginStart="283dp"
-            android:layout_marginTop="37dp"
-            android:autofillHints=""
-            android:background="#FFFFFF"
-            android:ems="10"
-            android:foreground="@drawable/down"
-            android:hint="i"
+        <TextView
+            android:id="@+id/addressView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="35dp"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:fontFamily="@font/open_sans_bold"
+            android:gravity="center_horizontal"
+            android:text="Current Location"
             android:textAlignment="center"
             android:textColor="#000000"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.497"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:textSize="20sp"
+            tools:layout_editor_absoluteY="35dp" />
 
         <EditText
             android:id="@+id/locationEditText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
             android:autofillHints=""
             android:ems="10"
-            android:inputType="number|numberDecimal"
+            android:singleLine="true"
             android:textAlignment="center"
             android:textColor="#000000"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
 
     </ViewSwitcher>
 

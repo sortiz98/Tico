@@ -27,58 +27,72 @@
         <ImageView
             android:id="@+id/imageView8"
             android:layout_width="347dp"
-            android:layout_height="242dp"
+            android:layout_height="159dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="189dp"
+            android:layout_marginTop="289dp"
             android:background="#757575"
             app:srcCompat="@drawable/authentic_frame" />
 
         <ImageView
             android:id="@+id/imageView7"
             android:layout_width="345dp"
-            android:layout_height="240dp"
+            android:layout_height="157dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="190dp"
-            android:background="#F4F5F8"
+            android:layout_marginTop="290dp"
+            android:background="#F8F8F8"
             android:visibility="visible"
             app:srcCompat="@color/design_default_color_background" />
 
         <TextView
-            android:id="@+id/title"
-            android:layout_width="270dp"
+            android:id="@+id/line1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="225dp"
-            android:fontFamily="@font/rambla"
-            android:text="Select the language you would like to continue in"
+            android:layout_marginTop="310dp"
+            android:text="Rate it!"
             android:textAlignment="center"
-            android:textColor="#4B4B4B"
-            android:textSize="18sp"
-            android:visibility="visible" />
+            android:textColor="#2D2C2C"
+            android:textSize="14sp" />
 
-        <Spinner
-            android:id="@+id/languageSpinner"
-            android:layout_width="270dp"
+        <TextView
+            android:id="@+id/line2"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="295dp"
-            android:background="@android:drawable/btn_dropdown"
-            android:entries="@array/languages"
-            android:popupBackground="@color/design_default_color_background"
-            android:spinnerMode="dropdown"
-            android:textAlignment="viewStart" />
+            android:layout_marginTop="330dp"
+            android:fontFamily="@font/rambla"
+            android:text="authentic?"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="#2D2C2C"
+            android:textSize="15sp" />
 
         <Button
-            android:id="@+id/continueButton"
+            android:id="@+id/closeButton"
             style="?android:attr/borderlessButtonStyle"
-            android:layout_width="127dp"
-            android:layout_height="31dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="365dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="293dp"
             android:background="#FFFFFF"
-            android:foreground="@drawable/continue_btn"
-            android:text="Button" />
+            android:foreground="@drawable/close_btn" />
 
+        <Button
+            android:id="@+id/popupYesButton"
+            android:layout_width="72dp"
+            android:layout_height="88.5dp"
+            android:layout_marginStart="120dp"
+            android:layout_marginTop="350dp"
+            android:background="@drawable/yes_btn" />
+
+        <Button
+            android:id="@+id/popupNoButton"
+            android:layout_width="72dp"
+            android:layout_height="88.5dp"
+            android:layout_marginStart="220dp"
+            android:layout_marginTop="350dp"
+            android:layout_marginEnd="120dp"
+            android:background="@drawable/no_btn" />
     </FrameLayout>
 
 </LinearLayout>

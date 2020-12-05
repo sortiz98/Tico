@@ -1,9 +1,11 @@
 package com.example.tico;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -46,18 +48,28 @@ public class DetailsActivity extends AppCompatActivity {
 
     private JSONObject results;
     private String address;
-    private String website;
+    private String miles;
     private String openNow;
+    private String driveTime;
     private String name;
+    private double distance;
+    private int time;
     private double rating;
 
     private TextView restaurantName;
-    private TextView restaurantAddress;
+    private TextView driveTimeView;
     private TextView restaurantOpenNow;
-    private TextView restaurantWebsite;
-    private TextView restaurantRating;
+    private TextView distanceView;
+    private TextView statusView;
     private TextView languageTextView;
-
+    private TextView whereText;
+    private TextView photosText;
+    private TextView reviewsText;
+    private TextView rateItText;
+    private TextView authText;
+    private TextView authRateText;
+    private TextView numRatingsText;
+    private SeekBar bar;
     private ImageView restaurantPhoto;
 
     private static Bundle state;
@@ -85,9 +97,7 @@ public class DetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_details);
 
         try {
-            Intent i = getIntent();
             restaurant = (Restaurant) getIntent().getSerializableExtra("restaurant");
-            System.out.print(restaurant);
         } catch (Exception e) {
             restaurant = (Restaurant) state.getSerializable("restaurant");
         }
@@ -96,19 +106,30 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         restaurantName = findViewById(R.id.name);
-        restaurantAddress = findViewById(R.id.address);
+        statusView = findViewById(R.id.statusView);
         restaurantOpenNow = findViewById(R.id.openNow);
-        restaurantWebsite = findViewById(R.id.website);
-        restaurantRating = findViewById(R.id.rating);
+        distanceView = findViewById(R.id.distanceView);
+        driveTimeView = findViewById(R.id.driveTimeView);
         restaurantPhoto = findViewById(R.id.imageView);
         languageTextView = findViewById(R.id.language);
+        photosText = findViewById(R.id.photosText);
+        reviewsText = findViewById(R.id.reviewsText);
+        whereText = findViewById(R.id.whereText);
+        authText = findViewById(R.id.authText);
+        numRatingsText = findViewById(R.id.numRatingsText);
+        rateItText  = findViewById(R.id.rateItText);
+        authRateText = findViewById(R.id.authRateText);
+        bar = findViewById(R.id.seekBarDetails);
+        bar.setThumb(getResources().getDrawable(restaurant.getCuisineFlagRes(), null));
 
 
         name = restaurant.getName();
         photoURL = restaurant.getPhotoURL();
         detailURL = restaurant.getDetailURL();
         language = restaurant.getLanguage();
-        languageTextView.setText(language); // Can be deleted
+        distance = restaurant.getDistance();
+        time = (int) restaurant.getTime();
+        //languageTextView.setText(language); // Can be deleted
 
         Picasso.get().load(photoURL).into(restaurantPhoto);
 
@@ -146,35 +167,46 @@ public class DetailsActivity extends AppCompatActivity {
                 try {
                     results = response.getJSONObject("result");
                     address = results.getString("formatted_address");
-
-                    openNow = results.getJSONObject("opening_hours").getBoolean("open_now") ? "open" : "closed";
+                    openNow = results.getJSONObject("opening_hours").getBoolean("open_now") ? "Currently Open" : "Now Closed";
+                    driveTime = String.format("%d minute drive", time);
+                    miles  = String.format("%3.1f miles away",  distance);
                     rating = results.getDouble("rating");
                     // Can add more information to the map below
                     final Map<String, TextView> infoMap = new HashMap<String, TextView>() {{
-                        put(openNow, restaurantOpenNow);
+                        put(openNow, statusView);
+                        put(miles, distanceView);
+                        put(driveTime, driveTimeView);
+                        put("photos", photosText);
+                        put("reviews", reviewsText);
+                        put("where", whereText);
+                        put((String) numRatingsText.getText(), numRatingsText);
+                        put("authenticity", authText);
+                        put("Rate it!", rateItText);
+                        put("authentic?", authRateText);
                     }};
-                    for (final String info: infoMap.keySet()) {
-                        translator.translate(info).addOnSuccessListener(new OnSuccessListener<String>() {
+                    for (final String line: infoMap.keySet()) {
+                        translator.translate(line).addOnSuccessListener(new OnSuccessListener<String>() {
                             @Override
                             public void onSuccess(String s) {
-                                infoMap.get(info).setText(s);
+                                infoMap.get(line).setText(s);
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
+                                System.out.print("noo");
                             }
                         });
                     }
                     restaurantName.setText(name);
-                    restaurantAddress.setText(address);
-                    restaurantRating.setText(String.valueOf(rating));
+                    //restaurantAddress.setText(address);
+                    //restaurantRating.setText(String.valueOf(rating));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 try {
                     results = response.getJSONObject("result");
-                    website = results.getString("website");
-                    restaurantWebsite.setText(website);
+                    //website = results.getString("website");
+                    //restaurantWebsite.setText(website);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -192,6 +224,7 @@ public class DetailsActivity extends AppCompatActivity {
     public void getMap(View view) {
         Intent intent = new Intent(this, MapActivity.class);
         intent.putExtra(EXTRA_MESSAGE, address);
+        intent.putExtra("name", name);
         startActivity(intent);
     }
 

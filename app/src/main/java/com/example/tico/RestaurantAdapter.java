@@ -1,15 +1,19 @@
 package com.example.tico;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -18,6 +22,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.mlkit.nl.translate.Translator;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -33,24 +40,38 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     private List<Restaurant> restaurants;
     private RequestQueue requestQueue;
     private Context context;
+    private Translator translator;
+    private Drawable flag;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView restaurantNameTv;
         TextView restaurantDistanceTv;
         TextView restaurantTimeTv;
         ImageView restaurantPhotoIv;
+        TextView authStampText;
+        TextView authBarLabel;
+        ImageView frameView;
+        ImageView authenticStamp;
+        SeekBar bar;
         public ViewHolder(View itemView) {
             super(itemView);
             this.restaurantNameTv = itemView.findViewById(R.id.restaurantName);
             this.restaurantDistanceTv = itemView.findViewById(R.id.restaurantDistance);
             this.restaurantTimeTv = itemView.findViewById(R.id.restaurantTime);
             this.restaurantPhotoIv = itemView.findViewById(R.id.restaurantPhoto);
+            this.authStampText = itemView.findViewById(R.id.authStampText);
+            this.authBarLabel = itemView.findViewById(R.id.authBarLabel);
+            this.frameView = itemView.findViewById(R.id.frameView);
+            this.authenticStamp = itemView.findViewById(R.id.authenticStamp);
+            this.bar = itemView.findViewById(R.id.seekBar);
         }
     }
 
-    public RestaurantAdapter(List<Restaurant> restaurants, Context context) {
+    public RestaurantAdapter(List<Restaurant> restaurants, Context context, Translator translator, Drawable flag) {
         this.restaurants = restaurants;
         this.context = context;
+        this.translator = translator;
+        this.flag = flag;
     }
 
     @NonNull
@@ -69,6 +90,13 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         final TextView timeTv = holder.restaurantTimeTv;
         ImageView photoIv = holder.restaurantPhotoIv;
         final Restaurant restaurant = restaurants.get(position);
+        TextView authBarLabel = holder.authBarLabel;
+        TextView authStampText = holder.authStampText;
+        ImageView frameView = holder.frameView;
+        ImageView authenticStamp = holder.authenticStamp;
+        SeekBar bar = holder.bar;
+        translate(authBarLabel, "authenticity");
+        translate(authStampText, "authentic");
         nameTv.setText(restaurant.getName());
         String photoURL = restaurant.getPhotoURL();
         Picasso.get().load(photoURL).resize(200, 0).centerCrop().into(photoIv);
@@ -82,6 +110,41 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             }
         });
         String distanceURL = restaurant.getDistanceURL();
+
+        if (position == 1 || position == 2) { // change to if rating >= 80%
+            frameView.setImageResource(R.drawable.frame);
+            authenticStamp.setImageResource(R.drawable.blank_stamp);
+            authStampText.setTextColor(Color.WHITE);
+        }
+
+        bar.setThumb(flag);
+
+        // Change color of seekbar progress according to rating
+        /*if (rating >= 80%) {
+            bar.setProgressDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.img, null));
+        } else if (rating >= 50%) {
+            bar.setProgressDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.img, null));
+        } else if (rating >= 25%)  {
+            bar.setProgressDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.img, null));
+        } else {
+            bar.setProgressDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.img, null));
+        }*/
+
+        // Change color of text according to distance
+        /*double distance = restaurant.getDistance();
+        if (distance <= 1.5) {
+            distanceTv.setTextColor(Color.parseColor("#72D74F"));
+        } else if (distance <= 2.5) {
+            distanceTv.setTextColor(Color.parseColor("#F5E135"));
+        } else if (distance <= 3.5)  {
+            distanceTv.setTextColor(Color.parseColor("#F6B831"));
+        } else {
+            distanceTv.setTextColor(Color.parseColor("#FC1204"));
+        }
+
+        distanceTv.setText(String.valueOf(restaurant.getDistance()));
+        timeTv.setText(String.valueOf((int) restaurant.getTime()));*/
+
         RequestQueue queue = Volley.newRequestQueue(this.context);
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, distanceURL, null, new Response.Listener<JSONObject>() {
             @Override
@@ -92,6 +155,18 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                     String time = distanceInformation.getJSONObject("duration").getString("text");
                     restaurant.distance = Double.valueOf(distance.split("\\s")[0]);
                     restaurant.time = Double.valueOf(time.split("\\s")[0]);
+
+                    // Change color of text according to distance
+                    if (restaurant.getDistance() <= 1.5) {
+                        distanceTv.setTextColor(Color.parseColor("#72D74F"));
+                    } else if (restaurant.getDistance() <= 2.5) {
+                        distanceTv.setTextColor(Color.parseColor("#F5E135"));
+                    } else if (restaurant.getDistance() <= 3.5)  {
+                        distanceTv.setTextColor(Color.parseColor("#F6B831"));
+                    } else {
+                        distanceTv.setTextColor(Color.parseColor("#FC1204"));
+                    }
+
                     distanceTv.setText(String.valueOf(restaurant.getDistance()));
                     timeTv.setText(String.valueOf((int) restaurant.getTime()));
                 } catch (JSONException e) {
@@ -105,6 +180,19 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             }
         });
         queue.add(stringRequest);
+    }
+
+    public void translate(final TextView view, String str) {
+        translator.translate(str).addOnSuccessListener(new OnSuccessListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                view.setText(s);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+            }
+        });
     }
 
     @Override

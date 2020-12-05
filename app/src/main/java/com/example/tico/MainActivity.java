@@ -1,22 +1,29 @@
 package com.example.tico;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,7 +35,13 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.mlkit.common.model.DownloadConditions;
+import com.google.mlkit.nl.translate.TranslateLanguage;
+import com.google.mlkit.nl.translate.Translation;
+import com.google.mlkit.nl.translate.Translator;
+import com.google.mlkit.nl.translate.TranslatorOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,12 +50,15 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     int count = 0;
     Button locationButton;
     Button sortDistanceButton;
+    Button sortAuthenticityButton;
     EditText locationEditText;
     String cuisine;
     String addressType;
@@ -50,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     double longitude, latitude;
     static String GEO_URL = "https://maps.googleapis.com/maps/api/geocode/json";
+    private static boolean distanceSort = true;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private String restaurant_URL = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
     private String place_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
@@ -61,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
     private String detail_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
     private String distance_URL = "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=";
     private ViewSwitcher viewSwitcher;
+    private TextView dummyText;
+    private TextView addressView;
     JSONArray results;
     List<Restaurant> restaurants;
     RestaurantAdapter adapter;
@@ -68,6 +87,21 @@ public class MainActivity extends AppCompatActivity {
 
     private final String KEY_RECYCLER_STATE = "recycler_state";
     private static Bundle mBundleRecyclerViewState;
+    private Translator translator;
+
+    Map<String, String> languageMap = new HashMap<String, String>() {{
+        put("English", TranslateLanguage.ENGLISH);
+        put("中文", TranslateLanguage.CHINESE);
+        put("Deutsch", TranslateLanguage.GERMAN);
+        put("Français", TranslateLanguage.FRENCH);
+        put("Español", TranslateLanguage.SPANISH);
+        put("日本語", TranslateLanguage.JAPANESE);
+        put("한국어", TranslateLanguage.KOREAN);
+        put("हिन्दी", TranslateLanguage.HINDI);
+    }};
+
+    Map<String, Integer> flagMap;
+
 
 
     @Override
@@ -77,22 +111,26 @@ public class MainActivity extends AppCompatActivity {
 
         context = this;
         recyclerView = findViewById(R.id.rvRestaurants);
+        dummyText =  findViewById(R.id.dummyText);
+        addressView = findViewById(R.id.addressView);
 
+        flagMap = new HashMap<String, Integer>() {{
+            put("chinese", R.drawable.chinese_flag);
+            put("japanese", R.drawable.japanese_flag);
+            put("indian", R.drawable.indian_flag);
+            put("mexican", R.drawable.mexican_flag);
+        }};
 
             try {
                 language = getIntent().getExtras().getString("language");
                 cuisine = getIntent().getExtras().getString("cuisine");
                 addressType = "currentLocation"; // Default to use current location
             } catch (Exception e) {
-                /*recyclerView.setAdapter(new RestaurantAdapter(new ArrayList<Restaurant>(), context));
-            Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-            recyclerView.setLayoutManager(layoutManager);
-            RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
-            lm.onRestoreInstanceState(listState);*/
                 language = mBundleRecyclerViewState.getString("lang");
                 cuisine = mBundleRecyclerViewState.getString("cuisine");
                 addressType = mBundleRecyclerViewState.getString("address");
+                addressView.setText(addressType);
+                dummyText.setText(addressType);
             }
 
 
@@ -102,12 +140,16 @@ public class MainActivity extends AppCompatActivity {
 
             locationButton = findViewById(R.id.locationButton);
             sortDistanceButton = findViewById(R.id.sortDistanceButton);
+            sortAuthenticityButton = findViewById(R.id.sortAuthenticityButton);
             locationEditText = findViewById(R.id.locationEditText);
             viewSwitcher = findViewById(R.id.viewSwitcher);
+            translate();
             restaurants = new ArrayList<>();
             locationButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    locationButton.setEnabled(false);
+                    locationButton.setVisibility(View.INVISIBLE);
                     viewSwitcher.showNext();
                 }
             });
@@ -119,6 +161,14 @@ public class MainActivity extends AppCompatActivity {
                         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                         inputMethodManager.hideSoftInputFromWindow(locationEditText.getWindowToken(), 0);
                         addressType = locationEditText.getText().toString();
+                        String simpleAddress = addressType.split(",")[0];
+                        addressView.setText(simpleAddress);
+                        dummyText.setText(simpleAddress);
+                        viewSwitcher.showPrevious();
+                        locationButton.setEnabled(true);
+                        locationButton.setVisibility(View.VISIBLE);
+                        //sortDistanceButton.setEnabled(false);
+                        //sortAuthenticityButton.setEnabled(false);
                         processInputLocation(addressType);
                     }
                     return false;
@@ -126,15 +176,6 @@ public class MainActivity extends AppCompatActivity {
             });
 
 
-            sortDistanceButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount()-1);
-                    sortByDistance();
-                    adapter.notifyDataSetChanged();
-                    recyclerView.smoothScrollToPosition(0);
-                }
-            });
         if (addressType.equals("currentLocation")) {
             processCurrentLocation();
         } else {
@@ -149,6 +190,109 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
+        setSortListeners();
+    }
+
+    public void translate(){
+        String translateLanguage = languageMap.get(language);
+        TranslatorOptions options = new TranslatorOptions.Builder()
+                .setSourceLanguage(TranslateLanguage.ENGLISH)
+                .setTargetLanguage(translateLanguage)
+                .build();
+        translator = Translation.getClient(options);
+        getLifecycle().addObserver(translator);
+        DownloadConditions conditions = new DownloadConditions.Builder().requireWifi().build();
+        translator.downloadModelIfNeeded(conditions)
+                .addOnSuccessListener(
+                        new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                            }
+                        }
+                ).addOnFailureListener(
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                    }
+                });
+
+        translator.translate(String.format("%s meals near", cuisine)).addOnSuccessListener(new OnSuccessListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                ((TextView) findViewById(R.id.mealText)).setText(s);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+            }
+        });
+        if (addressType == "currentLocation") {
+            translator.translate("Current Location").addOnSuccessListener(new OnSuccessListener<String>() {
+                @Override
+                public void onSuccess(String s) {
+                    addressView.setText(s);
+                    dummyText.setText(s);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                }
+            });
+        }
+        translator.translate("Authenticity").addOnSuccessListener(new OnSuccessListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                sortAuthenticityButton.setText(s);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+            }
+        });
+        translator.translate("Distance").addOnSuccessListener(new OnSuccessListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                sortDistanceButton.setText(s);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+            }
+        });
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    public void setSortListeners() {
+        final Button distanceButton = findViewById(R.id.sortDistanceButton);
+        final Button authButton = findViewById(R.id.sortAuthenticityButton);
+        final ImageView distSelect = findViewById(R.id.distance_underline);
+        final ImageView authSelect = findViewById(R.id.auth_underline);
+
+        distanceButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                distanceButton.setTextColor(Color.parseColor("#06A3BB"));
+                authButton.setTextColor(Color.parseColor("#8C8C8C"));
+                distSelect.setImageResource(R.drawable.distance_underline);
+                authSelect.setImageResource(R.color.colorAccent);
+                sortByDistance();
+                adapter.notifyDataSetChanged();
+                distanceSort = true;
+            }
+        });
+        authButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                distanceButton.setTextColor(Color.parseColor("#8C8C8C"));
+                authButton.setTextColor(Color.parseColor("#06A3BB"));
+                distSelect.setImageResource(R.color.colorAccent);
+                authSelect.setImageResource(R.drawable.authenticity_underline);
+                sortByAuthenticity();
+                adapter.notifyDataSetChanged();
+                distanceSort = false;
+            }
+        });
+
     }
 
     // https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
@@ -216,13 +360,13 @@ public class MainActivity extends AppCompatActivity {
                         String photoReference = photos.getJSONObject(0).getString("photo_reference");
                         String photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
 
-                        restaurants.add(new Restaurant(name, language, placeID, photoURL, detailURL, distanceURL));
+                        Restaurant restaurant = new Restaurant(name, language, placeID, photoURL, detailURL, distanceURL, flagMap.get(cuisine));
+                        new RestaurantHelper(restaurant).setDistance();
+                        restaurants.add(restaurant);
                     }
-                    adapter = new RestaurantAdapter(restaurants, context);
+                    adapter = new RestaurantAdapter(restaurants, context, translator, getDrawable(flagMap.get(cuisine)));
                     recyclerView.setAdapter(adapter);
 
-                    recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
-                    recyclerView.smoothScrollToPosition(0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -237,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private void sortByDistance() {
+    public void sortByDistance() {
         Collections.sort(restaurants, new Comparator<Restaurant>() {
             @Override
             public int compare(Restaurant restaurantOne, Restaurant restaurantTwo) {
@@ -248,32 +392,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-   /* @Override
-    protected void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
-
-        // Save list state
-        mListState = mLayoutManager.onSaveInstanceState();
-        state.putParcelable(LIST_STATE_KEY, mListState);
+    public void sortByAuthenticity() {
+        // @Lucas Implement
     }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle state) {
-        super.onRestoreInstanceState(state);
-
-        // Retrieve list state and list/item positions
-        if(state != null)
-            mListState = state.getParcelable(LIST_STATE_KEY);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (mListState != null) {
-            mLayoutManager.onRestoreInstanceState(mListState);
-        }
-    }*/
 
     @Override
     protected void onPause()
@@ -293,5 +414,43 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume()
     {
         super.onResume();
+    }
+
+    private class RestaurantHelper {
+        private Restaurant restaurant;
+        public RestaurantHelper(Restaurant restaurant) {
+            this.restaurant = restaurant;
+        }
+        public void setDistance() {
+            RequestQueue queue = Volley.newRequestQueue(context);
+            JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, restaurant.getDistanceURL(), null, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        JSONObject distanceInformation = response.getJSONArray("rows").getJSONObject(0).getJSONArray("elements").getJSONObject(0);
+                        String distance = distanceInformation.getJSONObject("distance").getString("text");
+                        String time = distanceInformation.getJSONObject("duration").getString("text");
+                        restaurant.setDistance(Double.valueOf(distance.split("\\s")[0]));
+                        restaurant.setTime(Double.valueOf(time.split("\\s")[0]));
+                        if (adapter != null) {
+                            if (distanceSort) {
+                                sortByDistance();
+                            } else {
+                                sortByAuthenticity();
+                            }
+                            adapter.notifyDataSetChanged();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    String jsonError = new String(error.networkResponse.data);
+                }
+            });
+            queue.add(stringRequest);
+        }
     }
 }

@@ -13,13 +13,29 @@
         android:background="#F4F5F8"
         tools:context=".CuisineActivity">
 
+        <TextView
+            android:id="@+id/japaneseLabel"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="42dp"
+            android:layout_marginTop="290dp"
+            android:elevation="10dp"
+            android:fontFamily="@font/belgrano"
+            android:singleLine="true"
+            android:text="Japanese"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <Button
             android:id="@+id/chinese"
             android:layout_width="160dp"
             android:layout_height="232dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="38dp"
-            android:foreground="@drawable/chinese"
+            android:layout_marginTop="1dp"
+            android:layout_marginEnd="42dp"
+            android:foreground="@drawable/chinese_cuisine"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/indian" />
 
@@ -27,9 +43,9 @@
             android:id="@+id/mexican"
             android:layout_width="160dp"
             android:layout_height="232dp"
-            android:layout_marginStart="38dp"
-            android:layout_marginTop="5dp"
-            android:foreground="@drawable/mexican"
+            android:layout_marginStart="42dp"
+            android:layout_marginTop="1dp"
+            android:foreground="@drawable/mexican_cuisine"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/japanese" />
 
@@ -37,9 +53,9 @@
             android:id="@+id/japanese"
             android:layout_width="160dp"
             android:layout_height="232dp"
-            android:layout_marginStart="38dp"
-            android:layout_marginTop="155dp"
-            android:foreground="@drawable/japanese"
+            android:layout_marginStart="43dp"
+            android:layout_marginTop="145dp"
+            android:foreground="@drawable/japanese_cuisine"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -47,31 +63,24 @@
             android:id="@+id/indian"
             android:layout_width="160dp"
             android:layout_height="232dp"
-            android:layout_marginTop="155dp"
-            android:layout_marginEnd="38dp"
-            android:foreground="@drawable/indian"
+            android:layout_marginTop="145dp"
+            android:layout_marginEnd="43dp"
+            android:foreground="@drawable/indian_cuisine"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/korean"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:text="korean"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.684"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
             android:id="@+id/languageSelector"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Language"
+            android:fontFamily="@font/rambla"
+            android:text="@string/language_btn_txt"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="#818080"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.253"
             app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
@@ -83,5 +92,86 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/intro" />
+
+        <ImageView
+            android:id="@+id/imageView6"
+            android:layout_width="400dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="70dp"
+            android:background="#F4F5F8"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/indianLabel"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="290dp"
+            android:layout_marginEnd="42dp"
+            android:elevation="10dp"
+            android:fontFamily="@font/belgrano"
+            android:text="Indian"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/mexicanLabel"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="42dp"
+            android:layout_marginBottom="110dp"
+            android:elevation="10dp"
+            android:fontFamily="@font/belgrano"
+            android:text="Mexican"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/chineseLabel"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="42dp"
+            android:layout_marginBottom="110dp"
+            android:elevation="10dp"
+            android:fontFamily="@font/belgrano"
+            android:text="Chinese"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/slogan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="80dp"
+            android:fontFamily="@font/rambla"
+            android:text="authentic meals that taste like home"
+            android:textColor="#5B5B5B"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/cuisineLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="115dp"
+            android:fontFamily="@font/belgrano"
+            android:text="Cuisines"
+            android:textAlignment="center"
+            android:textColor="#434242"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
