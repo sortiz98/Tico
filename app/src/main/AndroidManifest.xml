@@ -14,11 +14,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".PhotoActivity"></activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/Google_API_Key" />
@@ -31,9 +31,7 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DetailsActivity" />
-
         </activity>
-
         <activity
             android:name=".DetailsActivity"
             android:parentActivityName=".MainActivity">

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -32,7 +33,6 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-
 // import com.google.cloud.translate.*;
 
 
@@ -75,6 +75,8 @@ public class DetailsActivity extends AppCompatActivity {
     private static Bundle state;
 
     private Translator translator;
+
+    private Button photoButton;
 
 
     Map<String, String> languageMap = new HashMap<String, String>() {{
@@ -122,6 +124,7 @@ public class DetailsActivity extends AppCompatActivity {
         bar = findViewById(R.id.seekBarDetails);
         bar.setThumb(getResources().getDrawable(restaurant.getCuisineFlagRes(), null));
 
+        photoButton = findViewById(R.id.photos);
 
         name = restaurant.getName();
         photoURL = restaurant.getPhotoURL();
@@ -131,11 +134,21 @@ public class DetailsActivity extends AppCompatActivity {
         time = (int) restaurant.getTime();
         //languageTextView.setText(language); // Can be deleted
 
+        restaurantName.setText(name);
         Picasso.get().load(photoURL).into(restaurantPhoto);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
         //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        photoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), PhotoActivity.class);
+                intent.putExtra("restaurant", restaurant);
+                startActivity(intent);
+            }
+        });
 
 
         String translateLanguage = languageMap.get(language);
@@ -164,6 +177,13 @@ public class DetailsActivity extends AppCompatActivity {
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, detailURL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                try {
+                    results = response.getJSONObject("result");
+                    //website = results.getString("website");
+                    //restaurantWebsite.setText(website);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 try {
                     results = response.getJSONObject("result");
                     address = results.getString("formatted_address");
@@ -207,6 +227,24 @@ public class DetailsActivity extends AppCompatActivity {
                     results = response.getJSONObject("result");
                     //website = results.getString("website");
                     //restaurantWebsite.setText(website);
+                    openNow = results.getJSONObject("opening_hours").getBoolean("open_now") ? "open" : "closed";
+                    translator.translate(openNow).addOnSuccessListener(new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            //restaurantOpenNow.setText(s);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    results = response.getJSONObject("result");
+                    rating = results.getDouble("rating");
+                    //restaurantRating.setText(String.valueOf(rating));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

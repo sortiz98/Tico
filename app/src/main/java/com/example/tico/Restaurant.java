@@ -20,7 +20,7 @@ public class Restaurant implements Serializable {
     String name; // name of the restaurant
     String language; // current user language
     String formattedAddress; // address
-    String photoURL;
+    String photoURL; // url for the first photo
     String detailURL;
     String distanceURL;
     String id; // place id
@@ -45,8 +45,8 @@ public class Restaurant implements Serializable {
 
 
     /** A list of getter methods */
-    public String getName() { return this.name; }
-    public String getLanguage() { return this.language; }
+    public String getName() {return this.name; }
+    public String getLanguage() {return this.language; }
     public String getAddress() {return this.formattedAddress; }
     public String getPhotoURL() {return this.photoURL; }
     public String getDetailURL() {return this.detailURL; }

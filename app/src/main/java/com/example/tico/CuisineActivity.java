@@ -77,12 +77,12 @@ public class CuisineActivity extends AppCompatActivity {
         if (language == null || translator == null) {
             language = "English";
         } else {
-            translate("authentic meals that taste like home", slogan);
+            /*translate("authentic meals that taste like home", slogan);
             translate("Cuisines", cuisineLabel);
             translate("Japanese", japaneseLabel);
             translate("Mexican", mexicanLabel);
             translate("Indian", indianLabel);
-            translate("Chinese", chineseLabel);
+            translate("Chinese", chineseLabel);*/
         }
 
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
