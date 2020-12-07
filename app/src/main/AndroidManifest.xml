@@ -14,7 +14,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".PhotoActivity"></activity>
+        <activity android:name=".ReviewsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".DetailsActivity" />
+        </activity>
+        <activity android:name=".PhotoActivity" />
 
         <meta-data
             android:name="com.google.android.gms.version"

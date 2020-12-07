@@ -205,11 +205,10 @@
                             android:textSize="11sp" />
 
                         <TextView
-                            android:id="@+id/restaurantTime"
+                            android:id="@+id/restaurantScore"
                             android:layout_width="80dp"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/rambla"
-                            android:text="TextView"
                             android:textAlignment="viewEnd"
                             android:textColor="#6B6B6B" />
 

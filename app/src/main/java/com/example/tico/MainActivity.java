@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -35,8 +36,17 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.mlkit.common.model.DownloadConditions;
 import com.google.mlkit.nl.translate.TranslateLanguage;
 import com.google.mlkit.nl.translate.Translation;
@@ -88,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
     private final String KEY_RECYCLER_STATE = "recycler_state";
     private static Bundle mBundleRecyclerViewState;
     private Translator translator;
+    private FirebaseFirestore db;
+
 
     Map<String, String> languageMap = new HashMap<String, String>() {{
         put("English", TranslateLanguage.ENGLISH);
@@ -113,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.rvRestaurants);
         dummyText =  findViewById(R.id.dummyText);
         addressView = findViewById(R.id.addressView);
+        this.db = FirebaseFirestore.getInstance();
+
 
         flagMap = new HashMap<String, Integer>() {{
             put("chinese", R.drawable.chinese_flag);
@@ -339,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
         restaurants = new ArrayList<>();
         String gps_URL = "query=" + cuisine + "+restaurants&location=" + lat + "," + lon + "&radius=1500&type=restaurant";
-        final String full_URL = restaurant_URL + gps_URL + "&key=" + getResources().getString(R.string.Google_API_Key);
+        final String full_URL = restaurant_URL + gps_URL + "&key=" + getResources().getString(R.string.Google_API_Key) + "&fields=name,place_id,photos,geometry";
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, full_URL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -360,7 +374,11 @@ public class MainActivity extends AppCompatActivity {
                         String photoReference = photos.getJSONObject(0).getString("photo_reference");
                         String photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
 
-                        Restaurant restaurant = new Restaurant(name, language, placeID, photoURL, detailURL, distanceURL, flagMap.get(cuisine));
+                        double lat = restaurantInfo.getJSONObject("geometry").getJSONObject("location").getDouble("lat");
+                        double lon = restaurantInfo.getJSONObject("geometry").getJSONObject("location").getDouble("lng");
+
+                        Restaurant restaurant = new Restaurant(name, language, placeID, photoURL, detailURL, distanceURL, flagMap.get(cuisine), lat, lon);
+                        getRestaurantScore(restaurant, lat, lon, i);
                         new RestaurantHelper(restaurant).setDistance();
                         restaurants.add(restaurant);
                     }
@@ -381,6 +399,70 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
+    public void getRestaurantScore(final Restaurant restaurant, final Double lat, final Double lon, final int position) {
+
+        final CollectionReference restaurantRef = db.collection("restaurants");
+        final String name = restaurant.getName();
+        Query query = restaurantRef.whereEqualTo("name", name).whereEqualTo("latitude", lat.toString()).whereEqualTo("longitude", lon.toString());
+
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        restaurant.setInfo(document.getId(), document.getData());
+                        getReviews(restaurantRef.document(document.getId()).collection("reviews"), restaurant, position);
+                    }
+                } else {
+                    Query query2 = restaurantRef.whereEqualTo("name", name);
+                    query2.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                                String bestMatchId = "";
+                                double bestDistSquare = 100000000;
+                                Map<String, Object> info = null;
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    double latitude = Double.parseDouble((String) document.getData().get("latitude"));
+                                    double longitude = Double.parseDouble((String) document.getData().get("longitude"));
+                                    double squareDist = Math.abs(latitude - lat) * Math.abs(latitude - lat) + Math.abs(longitude - lon) * Math.abs(longitude - lon);
+                                    if (squareDist < bestDistSquare) {
+                                        bestDistSquare = squareDist;
+                                        bestMatchId = document.getId();
+                                        info = document.getData();
+                                    }
+                                }
+                                restaurant.setInfo(bestMatchId, info);
+                                getReviews(restaurantRef.document(bestMatchId).collection("reviews"), restaurant, position);
+                            } else {
+                                Log.d("TICO", "Error getting reviews: ", task.getException());
+
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    public void getReviews(CollectionReference reviewRef, final Restaurant restaurant, final int position) {
+        reviewRef.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                restaurant.addReview(Integer.parseInt((String) document.getData().get("Authenticity")), (String) document.getData().get("text"));
+                            }
+                        }
+                        restaurant.refreshScore();
+                        if (adapter != null) {
+                            adapter.notifyDataSetChanged();;
+                        }
+                    }
+                });
+    }
+
     public void sortByDistance() {
         Collections.sort(restaurants, new Comparator<Restaurant>() {
             @Override
@@ -393,7 +475,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sortByAuthenticity() {
-        // @Lucas Implement
+        Collections.sort(restaurants, new Comparator<Restaurant>() {
+            @Override
+            public int compare(Restaurant restaurantOne, Restaurant restaurantTwo) {
+                if (restaurantOne.getScore() < restaurantTwo.getScore()) return 1;
+                else if (restaurantOne.getScore() > restaurantTwo.getScore()) return -1;
+                else return 0;
+            }
+        });
     }
 
     @Override
