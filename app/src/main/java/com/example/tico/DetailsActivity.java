@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -157,7 +158,14 @@ public class DetailsActivity extends AppCompatActivity {
         percentageText = findViewById(R.id.percentage);
         bar = findViewById(R.id.seekBarDetails);
         bar.setThumb(getResources().getDrawable(restaurant.getCuisineFlagRes(), null));
-       updateRatings();
+
+        bar.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return true;
+            }
+        });
+        updateRatings();
 
         photoButton = findViewById(R.id.photos);
         reviewButton = findViewById(R.id.reviews);
@@ -482,6 +490,8 @@ public class DetailsActivity extends AppCompatActivity {
         percentageText.setText(Integer.toString(restaurant.getScore()) + "%");
         int rating = restaurant.getScore();
         bar.setProgress(rating);
+
+
 
         // Change color of seekbar progress according to rating
         if (rating >= 80) {
