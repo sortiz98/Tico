@@ -35,7 +35,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
     public PhotoAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View photoView = inflater.inflate(R.layout.photos_layout, parent, false);
+        View photoView = inflater.inflate(R.layout.photo_layout, parent, false);
         return new PhotoAdapter.ViewHolder(photoView);
     }
 
@@ -43,7 +43,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull PhotoAdapter.ViewHolder holder, int position) {
         ImageView photoImageView = holder.foto;
         String photoURL = photoURLs.get(position);
-        Picasso.get().load(photoURL).resize(50, 50).centerCrop().into(photoImageView);
+        Picasso.get().load(photoURL).resize(500, 500).centerCrop().into(photoImageView);
     }
 
     @Override
