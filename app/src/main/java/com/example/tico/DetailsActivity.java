@@ -1,12 +1,23 @@
 package com.example.tico;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,8 +30,16 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.mlkit.common.model.DownloadConditions;
 import com.google.mlkit.nl.translate.TranslateLanguage;
 import com.google.mlkit.nl.translate.Translation;
@@ -39,6 +58,9 @@ import java.util.Map;
 public class DetailsActivity extends AppCompatActivity {
 
     public static final String EXTRA_MESSAGE = "com.example.tico.MESSAGE";
+    private FirebaseFirestore db;
+
+
 
     // Details of a restaurant
     private String detailURL;
@@ -69,14 +91,19 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView authText;
     private TextView authRateText;
     private TextView numRatingsText;
+    private TextView percentageText;
     private SeekBar bar;
     private ImageView restaurantPhoto;
+    private Button rateButton;
+    private PopupWindow popupWindow;
 
     private static Bundle state;
 
     private Translator translator;
 
     private Button photoButton;
+    private Button reviewButton;
+
 
 
     Map<String, String> languageMap = new HashMap<String, String>() {{
@@ -97,6 +124,8 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+        this.db = FirebaseFirestore.getInstance();
+
 
         try {
             restaurant = (Restaurant) getIntent().getSerializableExtra("restaurant");
@@ -121,10 +150,14 @@ public class DetailsActivity extends AppCompatActivity {
         numRatingsText = findViewById(R.id.numRatingsText);
         rateItText  = findViewById(R.id.rateItText);
         authRateText = findViewById(R.id.authRateText);
+        rateButton = findViewById(R.id.rate);
+        percentageText = findViewById(R.id.percentage);
         bar = findViewById(R.id.seekBarDetails);
         bar.setThumb(getResources().getDrawable(restaurant.getCuisineFlagRes(), null));
+       updateRatings();
 
         photoButton = findViewById(R.id.photos);
+        reviewButton = findViewById(R.id.reviews);
 
         name = restaurant.getName();
         photoURL = restaurant.getPhotoURL();
@@ -147,6 +180,54 @@ public class DetailsActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), PhotoActivity.class);
                 intent.putExtra("restaurant", restaurant);
                 startActivity(intent);
+            }
+        });
+
+        reviewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), ReviewsActivity.class);
+                intent.putExtra("restaurant", restaurant);
+                startActivity(intent);
+            }
+        });
+
+        rateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                View popupView = layoutInflater.inflate(R.layout.rating_layout, null);
+                popupWindow = new PopupWindow(popupView, 1100, 2200, true);
+                TextView rateItTv = (TextView) popupView.findViewById(R.id.rateIt);
+                TextView authenticTv = (TextView) popupView.findViewById(R.id.authentic);
+                Button yesButton = (Button) popupView.findViewById(R.id.popupYesButton);
+                Button noButton = (Button) popupView.findViewById(R.id.popupNoButton);
+                Button closeButton = (Button) popupView.findViewById(R.id.closeButton);
+                translate("Rate it!", rateItTv);
+                translate("authentic?", authenticTv);
+                yesButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        restaurant.rateAuthentic();
+                        updateAuthenticity();
+                        popupWindow.dismiss();
+                    }
+                });
+
+                noButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        restaurant.rateInauthentic();
+                        updateAuthenticity();
+                        popupWindow.dismiss();
+                    }
+                });
+                closeButton.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View popupView) {
+                        popupWindow.dismiss();
+                    }
+                });
+                popupWindow.showAtLocation(findViewById(R.id.rate), Gravity.TOP, 0, 0);
             }
         });
 
@@ -190,7 +271,7 @@ public class DetailsActivity extends AppCompatActivity {
                     openNow = results.getJSONObject("opening_hours").getBoolean("open_now") ? "Currently Open" : "Now Closed";
                     driveTime = String.format("%d minute drive", time);
                     miles  = String.format("%3.1f miles away",  distance);
-                    rating = results.getDouble("rating");
+                    //rating = results.getDouble("rating");
                     // Can add more information to the map below
                     final Map<String, TextView> infoMap = new HashMap<String, TextView>() {{
                         put(openNow, statusView);
@@ -199,7 +280,8 @@ public class DetailsActivity extends AppCompatActivity {
                         put("photos", photosText);
                         put("reviews", reviewsText);
                         put("where", whereText);
-                        put((String) numRatingsText.getText(), numRatingsText);
+                        put(Integer.toString(restaurant.getTotalScore()) + " ratings", numRatingsText);
+                        put(Integer.toString(restaurant.getScore()) + "%", percentageText);
                         put("authenticity", authText);
                         put("Rate it!", rateItText);
                         put("authentic?", authRateText);
@@ -243,7 +325,7 @@ public class DetailsActivity extends AppCompatActivity {
                 }
                 try {
                     results = response.getJSONObject("result");
-                    rating = results.getDouble("rating");
+                    //rating = results.getDouble("rating");
                     //restaurantRating.setText(String.valueOf(rating));
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -257,6 +339,47 @@ public class DetailsActivity extends AppCompatActivity {
         });
         queue.add(stringRequest);
 
+    }
+
+    public void updateAuthenticity() {
+        if (restaurant.restaurantId == null) {
+            restaurant.restaurantId = "google" + restaurant.id;
+            Map<String, Object> storeMe = new HashMap<>();
+            storeMe.put("name", restaurant.getName());
+            storeMe.put("latitude", Double.toString(restaurant.lat));
+            storeMe.put("longitude", Double.toString(restaurant.lng));
+            storeMe.put("authScore", restaurant.getAuthScoreString());
+            storeMe.put("totalScore", restaurant.getTotalScoreString());
+
+            db.collection("restaurants").document(restaurant.getRestaurantId()).set(storeMe)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("Details", "AuthScore successfully updated!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("Details", "Error updating document", e);
+                        }
+                    });
+        } else {
+            db.collection("restaurants").document(restaurant.getRestaurantId()).update("authScore", restaurant.getAuthScoreString(), "totalScore", restaurant.getTotalScoreString())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("Details", "AuthScore successfully updated!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("Details", "Error updating document", e);
+                        }
+                    });
+            updateRatings();
+        }
     }
 
     public void getMap(View view) {
@@ -298,6 +421,42 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onResume()
     {
         super.onResume();
+    }
+
+    public void translate(final String line, final TextView view) {
+        translator.translate(line).addOnSuccessListener(new OnSuccessListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                view.setText(s);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                System.out.print("noo");
+            }
+        });
+    }
+
+    public void updateRatings() {
+        numRatingsText.setText(Integer.toString(restaurant.getTotalScore()) + " ratings");
+        percentageText.setText(Integer.toString(restaurant.getScore()) + "%");
+        int rating = restaurant.getScore();
+        bar.setProgress(rating);
+
+        // Change color of seekbar progress according to rating
+        int barColor;
+        if (rating >= 80) {
+            barColor = Color.parseColor("#72D74F");
+
+        } else if (rating >= 50) {
+            barColor = Color.parseColor("#F5E135");
+        } else {
+            barColor = Color.parseColor("#FC1204");
+        }
+        LayerDrawable progressBarDrawable = (LayerDrawable) bar.getProgressDrawable();
+        Drawable progressDrawable = progressBarDrawable.getDrawable(1);
+
+        progressDrawable.setColorFilter(new PorterDuffColorFilter(barColor, PorterDuff.Mode.MULTIPLY));
     }
 
 }

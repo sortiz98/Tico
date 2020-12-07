@@ -1,15 +1,20 @@
 package com.example.tico;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -27,13 +32,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.mlkit.nl.translate.Translator;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder> {
 
@@ -46,7 +48,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView restaurantNameTv;
         TextView restaurantDistanceTv;
-        TextView restaurantTimeTv;
+        TextView restaurantScoreTv;
         ImageView restaurantPhotoIv;
         TextView authStampText;
         TextView authBarLabel;
@@ -57,7 +59,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             super(itemView);
             this.restaurantNameTv = itemView.findViewById(R.id.restaurantName);
             this.restaurantDistanceTv = itemView.findViewById(R.id.restaurantDistance);
-            this.restaurantTimeTv = itemView.findViewById(R.id.restaurantTime);
+            this.restaurantScoreTv = itemView.findViewById(R.id.restaurantScore);
             this.restaurantPhotoIv = itemView.findViewById(R.id.restaurantPhoto);
             this.authStampText = itemView.findViewById(R.id.authStampText);
             this.authBarLabel = itemView.findViewById(R.id.authBarLabel);
@@ -83,11 +85,12 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         return new ViewHolder(restaurantView);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onBindViewHolder(RestaurantAdapter.ViewHolder holder, int position) {
         TextView nameTv = holder.restaurantNameTv;
         final TextView distanceTv = holder.restaurantDistanceTv;
-        final TextView timeTv = holder.restaurantTimeTv;
+        final TextView scoreTv = holder.restaurantScoreTv;
         ImageView photoIv = holder.restaurantPhotoIv;
         final Restaurant restaurant = restaurants.get(position);
         TextView authBarLabel = holder.authBarLabel;
@@ -111,24 +114,47 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         });
         String distanceURL = restaurant.getDistanceURL();
 
-        if (position == 1 || position == 2) { // change to if rating >= 80%
+
+
+
+        bar.setThumb(flag);
+        int rating = restaurant.getScore();
+        bar.setProgress(rating);
+        bar.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return true;
+            }
+        });
+
+        if (rating >= 80) { // change to if rating >= 80%
+
+        }
+
+        scoreTv.setText(Integer.toString(rating));
+
+
+        // Change color of seekbar progress according to rating
+        int barColor;
+        if (rating >= 80) {
+            barColor = Color.parseColor("#72D74F");
             frameView.setImageResource(R.drawable.frame);
             authenticStamp.setImageResource(R.drawable.blank_stamp);
             authStampText.setTextColor(Color.WHITE);
-        }
-
-        bar.setThumb(flag);
-
-        // Change color of seekbar progress according to rating
-        /*if (rating >= 80%) {
-            bar.setProgressDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.img, null));
-        } else if (rating >= 50%) {
-            bar.setProgressDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.img, null));
-        } else if (rating >= 25%)  {
-            bar.setProgressDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.img, null));
+            frameView.setVisibility(View.VISIBLE);
+        } else if (rating >= 50) {
+            frameView.setVisibility(View.INVISIBLE);
+            barColor = Color.parseColor("#F5E135");
         } else {
-            bar.setProgressDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.img, null));
-        }*/
+            frameView.setVisibility(View.INVISIBLE);
+            barColor = Color.parseColor("#FC1204");
+        }
+        LayerDrawable progressBarDrawable = (LayerDrawable) bar.getProgressDrawable();
+        ClipDrawable progressDrawable = (ClipDrawable) progressBarDrawable.getDrawable(1);
+        Drawable gradientDrawable = progressDrawable.getDrawable();
+
+        gradientDrawable.setColorFilter(new PorterDuffColorFilter(barColor, PorterDuff.Mode.MULTIPLY));
+        scoreTv.setText(Integer.toString(rating));
 
         // Change color of text according to distance
         /*double distance = restaurant.getDistance();
@@ -168,7 +194,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                     }
 
                     distanceTv.setText(String.valueOf(restaurant.getDistance()));
-                    timeTv.setText(String.valueOf((int) restaurant.getTime()));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -198,6 +223,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     @Override
     public int getItemCount() {
         return restaurants.size();
+    }
+
+    public void updateRestaurant(int position) {
+
     }
 
     public void clearRestaurants() {

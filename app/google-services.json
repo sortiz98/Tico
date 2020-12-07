@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "562403804694",
+    "firebase_url": "https://cs160-292703.firebaseio.com",
+    "project_id": "cs160-292703",
+    "storage_bucket": "cs160-292703.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:562403804694:android:7c9b77814e6d4cb4bf5737",
+        "android_client_info": {
+          "package_name": "com.example.tico"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "562403804694-brohh4q2ioqaq941mo4nf10ctut5hm5h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYf8EhDMpiqD3fsksoCPT5cnHTIgmQ78g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "562403804694-brohh4q2ioqaq941mo4nf10ctut5hm5h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
