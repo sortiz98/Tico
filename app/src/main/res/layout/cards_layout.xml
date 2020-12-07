@@ -170,7 +170,7 @@
 
                     <SeekBar
                         android:id="@+id/seekBar"
-                        android:layout_width="295dp"
+                        android:layout_width="290dp"
                         android:layout_height="17dp"
                         android:layout_gravity="bottom"
                         android:layout_marginTop="13dp"

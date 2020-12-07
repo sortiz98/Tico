@@ -1,41 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="400dp"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginStart="4dp"
     android:orientation="horizontal"
     android:tag="cards main container">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/card_view"
-        android:layout_width="wrap_content"
+        android:layout_width="400dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="3dp"
-        android:layout_marginEnd="3dp"
-        android:layout_marginBottom="8dp"
-        android:paddingStart="2dp"
-        android:paddingEnd="2dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="15dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
         android:paddingBottom="0dp"
         card_view:cardBackgroundColor="#F7F7F7"
         card_view:cardCornerRadius="0dp"
         card_view:cardElevation="0dp"
-        card_view:cardUseCompatPadding="false"
-        card_view:contentPadding="5dp">
+        card_view:cardUseCompatPadding="true"
+        card_view:contentPadding="0dp">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_marginTop="0dp"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/reviewText"
-                android:layout_width="390dp"
+                android:layout_width="375dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_weight="1" />
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/open_sans"
+                android:textColor="#404040" />
         </LinearLayout>
 
 

@@ -104,6 +104,9 @@ public class DetailsActivity extends AppCompatActivity {
     private Button photoButton;
     private Button reviewButton;
 
+    private Button yesButton;
+    private Button noButton;
+
 
 
     Map<String, String> languageMap = new HashMap<String, String>() {{
@@ -159,6 +162,9 @@ public class DetailsActivity extends AppCompatActivity {
         photoButton = findViewById(R.id.photos);
         reviewButton = findViewById(R.id.reviews);
 
+        yesButton = findViewById(R.id.yesButton);
+        noButton = findViewById(R.id.noButton);
+
         name = restaurant.getName();
         photoURL = restaurant.getPhotoURL();
         detailURL = restaurant.getDetailURL();
@@ -192,6 +198,26 @@ public class DetailsActivity extends AppCompatActivity {
             }
         });
 
+        yesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                yesButton.setBackground(getDrawable(R.drawable.yes_btn_pressed));
+                noButton.setBackground(getDrawable(R.drawable.no_btn));
+                restaurant.rateAuthentic();
+                updateAuthenticity();
+            }
+        });
+
+        noButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                noButton.setBackground(getDrawable(R.drawable.no_btn_pressed));
+                yesButton.setBackground(getDrawable(R.drawable.yes_btn));
+                restaurant.rateInauthentic();
+                updateAuthenticity();
+            }
+        });
+
         rateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -200,31 +226,45 @@ public class DetailsActivity extends AppCompatActivity {
                 popupWindow = new PopupWindow(popupView, 1100, 2200, true);
                 TextView rateItTv = (TextView) popupView.findViewById(R.id.rateIt);
                 TextView authenticTv = (TextView) popupView.findViewById(R.id.authentic);
-                Button yesButton = (Button) popupView.findViewById(R.id.popupYesButton);
-                Button noButton = (Button) popupView.findViewById(R.id.popupNoButton);
+                final Button yesPopupButton = (Button) popupView.findViewById(R.id.popupYesButton);
+                final Button noPopupButton = (Button) popupView.findViewById(R.id.popupNoButton);
                 Button closeButton = (Button) popupView.findViewById(R.id.closeButton);
                 translate("Rate it!", rateItTv);
                 translate("authentic?", authenticTv);
-                yesButton.setOnClickListener(new View.OnClickListener() {
+                yesPopupButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         restaurant.rateAuthentic();
                         updateAuthenticity();
-                        popupWindow.dismiss();
+                        yesPopupButton.setBackground(getDrawable(R.drawable.yes_btn_pressed));
+                        noPopupButton.setBackground(getDrawable(R.drawable.no_btn));
+                        yesButton.performClick();
+                        //popupWindow.dismiss();
                     }
                 });
 
-                noButton.setOnClickListener(new View.OnClickListener() {
+                noPopupButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         restaurant.rateInauthentic();
                         updateAuthenticity();
-                        popupWindow.dismiss();
+                        noPopupButton.setBackground(getDrawable(R.drawable.no_btn_pressed));
+                        yesPopupButton.setBackground(getDrawable(R.drawable.yes_btn));
+                        noButton.performClick();
+
+                        //popupWindow.dismiss();
                     }
                 });
                 closeButton.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View popupView) {
                         popupWindow.dismiss();
+                        rateItText.setVisibility(View.INVISIBLE);
+                        authRateText.setVisibility(View.INVISIBLE);
+                        yesButton.setVisibility(View.VISIBLE);
+                        noButton.setVisibility(View.VISIBLE);
+                        yesButton.setEnabled(true);
+                        noButton.setEnabled(true);
+                        rateButton.setEnabled(false);
                     }
                 });
                 popupWindow.showAtLocation(findViewById(R.id.rate), Gravity.TOP, 0, 0);
@@ -444,7 +484,20 @@ public class DetailsActivity extends AppCompatActivity {
         bar.setProgress(rating);
 
         // Change color of seekbar progress according to rating
-        int barColor;
+        if (rating >= 80) {
+            //barColor = Color.parseColor("#72D74F");
+            bar.setProgressDrawable(getDrawable(R.drawable.green_bar));
+        } else if (rating >= 50) {
+            bar.setProgressDrawable(getDrawable(R.drawable.yellow_bar));
+            //barColor = Color.parseColor("#F5E135");
+        }  else if (rating > 25)  {
+            bar.setProgressDrawable(getDrawable(R.drawable.orange_bar));
+            //barColor = Color.parseColor("#F6B831");
+        } else {
+            bar.setProgressDrawable(getDrawable(R.drawable.red_bar));
+            //barColor = Color.parseColor("#FC1204");
+        }
+        /*int barColor;
         if (rating >= 80) {
             barColor = Color.parseColor("#72D74F");
 
@@ -456,7 +509,7 @@ public class DetailsActivity extends AppCompatActivity {
         LayerDrawable progressBarDrawable = (LayerDrawable) bar.getProgressDrawable();
         Drawable progressDrawable = progressBarDrawable.getDrawable(1);
 
-        progressDrawable.setColorFilter(new PorterDuffColorFilter(barColor, PorterDuff.Mode.MULTIPLY));
+        progressDrawable.setColorFilter(new PorterDuffColorFilter(barColor, PorterDuff.Mode.MULTIPLY));*/
     }
 
 }

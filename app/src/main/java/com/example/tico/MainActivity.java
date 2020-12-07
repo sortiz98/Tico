@@ -143,8 +143,8 @@ public class MainActivity extends AppCompatActivity {
                 language = mBundleRecyclerViewState.getString("lang");
                 cuisine = mBundleRecyclerViewState.getString("cuisine");
                 addressType = mBundleRecyclerViewState.getString("address");
-                addressView.setText(addressType);
-                dummyText.setText(addressType);
+                addressView.setText(addressType.split(",")[0]);
+                dummyText.setText(addressType.split(",")[0]);
             }
 
 

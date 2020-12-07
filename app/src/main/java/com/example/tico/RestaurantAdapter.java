@@ -117,8 +117,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
 
 
-        bar.setThumb(flag);
         int rating = restaurant.getScore();
+        bar.setThumb(flag);
+        bar.setProgress(0); // call these two methods before setting progress.
+        bar.setMax(100);
         bar.setProgress(rating);
         bar.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -137,23 +139,39 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         // Change color of seekbar progress according to rating
         int barColor;
         if (rating >= 80) {
-            barColor = Color.parseColor("#72D74F");
+            //barColor = Color.parseColor("#72D74F");
+            bar.setProgressDrawable(context.getDrawable(R.drawable.green_bar));
             frameView.setImageResource(R.drawable.frame);
             authenticStamp.setImageResource(R.drawable.blank_stamp);
             authStampText.setTextColor(Color.WHITE);
+            authenticStamp.setVisibility(View.VISIBLE);
+            authStampText.setVisibility(View.VISIBLE);
             frameView.setVisibility(View.VISIBLE);
+
         } else if (rating >= 50) {
             frameView.setVisibility(View.INVISIBLE);
-            barColor = Color.parseColor("#F5E135");
+            authenticStamp.setVisibility(View.INVISIBLE);
+            authStampText.setVisibility(View.INVISIBLE);
+            bar.setProgressDrawable(context.getDrawable(R.drawable.yellow_bar));
+            //barColor = Color.parseColor("#F5E135");
+        }  else if (rating > 25)  {
+            frameView.setVisibility(View.INVISIBLE);
+            authenticStamp.setVisibility(View.INVISIBLE);
+            authStampText.setVisibility(View.INVISIBLE);
+            bar.setProgressDrawable(context.getDrawable(R.drawable.orange_bar));
+            //barColor = Color.parseColor("#F6B831");
         } else {
             frameView.setVisibility(View.INVISIBLE);
-            barColor = Color.parseColor("#FC1204");
+            authenticStamp.setVisibility(View.INVISIBLE);
+            authStampText.setVisibility(View.INVISIBLE);
+            bar.setProgressDrawable(context.getDrawable(R.drawable.red_bar));
+            //barColor = Color.parseColor("#FC1204");
         }
         LayerDrawable progressBarDrawable = (LayerDrawable) bar.getProgressDrawable();
         ClipDrawable progressDrawable = (ClipDrawable) progressBarDrawable.getDrawable(1);
         Drawable gradientDrawable = progressDrawable.getDrawable();
 
-        gradientDrawable.setColorFilter(new PorterDuffColorFilter(barColor, PorterDuff.Mode.MULTIPLY));
+        //gradientDrawable.setColorFilter(new PorterDuffColorFilter(barColor, PorterDuff.Mode.MULTIPLY));
         scoreTv.setText(Integer.toString(rating));
 
         // Change color of text according to distance
