@@ -127,10 +127,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             }
         });
 
-        if (rating >= 80) { // change to if rating >= 80%
-
-        }
-
         scoreTv.setText(Integer.toString(rating));
 
 
