@@ -5,13 +5,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -24,7 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,8 +38,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -365,15 +360,16 @@ public class MainActivity extends AppCompatActivity {
 
                         String name = restaurantInfo.getString("name");
                         String placeID = restaurantInfo.getString("place_id");
-
+                        String photoURL = "";
                         String detailURL = detail_URL + "place_id=" + placeID + "&key=" + getResources().getString(R.string.Google_API_Key);
                         String distanceURL = distance_URL + latitude + "," + longitude + "&destinations=place_id:" + placeID + "&key=" + getResources().getString(R.string.Google_API_Key);
 
                         // photo
-                        JSONArray photos = restaurantInfo.getJSONArray("photos");
-                        String photoReference = photos.getJSONObject(0).getString("photo_reference");
-                        String photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
-
+                        if (restaurantInfo.has("photos")) {
+                            JSONArray photos = restaurantInfo.getJSONArray("photos");
+                            String photoReference = photos.getJSONObject(0).getString("photo_reference");
+                            photoURL = photo_URL + "photoreference=" + photoReference + "&key=" + getResources().getString(R.string.Google_API_Key);
+                        }
                         double lat = restaurantInfo.getJSONObject("geometry").getJSONObject("location").getDouble("lat");
                         double lon = restaurantInfo.getJSONObject("geometry").getJSONObject("location").getDouble("lng");
 
