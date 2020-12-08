@@ -168,17 +168,50 @@
                     android:layout_height="30dp"
                     android:orientation="vertical">
 
-                    <SeekBar
-                        android:id="@+id/seekBar"
-                        android:layout_width="290dp"
-                        android:layout_height="17dp"
-                        android:layout_gravity="bottom"
-                        android:layout_marginTop="13dp"
-                        android:layout_marginBottom="0dp"
-                        android:progress="70"
-                        android:progressDrawable="@drawable/img"
-                        android:saveEnabled="false"
-                        android:thumb="@drawable/mexican_flag" />
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <SeekBar
+                            android:id="@+id/seekBarIndian"
+                            android:layout_width="290dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="bottom"
+                            android:layout_marginTop="13dp"
+                            android:layout_marginBottom="0dp"
+                            android:progressDrawable="@drawable/img"
+                            android:thumb="@drawable/indian_flag" />
+
+                        <SeekBar
+                            android:id="@+id/seekBarChinese"
+                            android:layout_width="290dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="bottom"
+                            android:layout_marginTop="13dp"
+                            android:layout_marginBottom="0dp"
+                            android:progressDrawable="@drawable/img"
+                            android:thumb="@drawable/chinese_flag" />
+
+                        <SeekBar
+                            android:id="@+id/seekBarMexican"
+                            android:layout_width="290dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="bottom"
+                            android:layout_marginTop="13dp"
+                            android:layout_marginBottom="0dp"
+                            android:progressDrawable="@drawable/img"
+                            android:thumb="@drawable/mexican_flag" />
+
+                        <SeekBar
+                            android:id="@+id/seekBarJapanese"
+                            android:layout_width="290dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="bottom"
+                            android:layout_marginTop="13dp"
+                            android:layout_marginBottom="0dp"
+                            android:progressDrawable="@drawable/img"
+                            android:thumb="@drawable/japanese_flag" />
+                    </FrameLayout>
 
                 </LinearLayout>
 

@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     JSONArray results;
     List<Restaurant> restaurants;
     RestaurantAdapter adapter;
-    RecyclerView recyclerView;
+    static RecyclerView recyclerView;
 
     private final String KEY_RECYCLER_STATE = "recycler_state";
     private static Bundle mBundleRecyclerViewState;
@@ -378,8 +378,9 @@ public class MainActivity extends AppCompatActivity {
                         new RestaurantHelper(restaurant).setDistance();
                         restaurants.add(restaurant);
                     }
-                    adapter = new RestaurantAdapter(restaurants, context, translator, getDrawable(flagMap.get(cuisine)));
+                    adapter = new RestaurantAdapter(restaurants, context, translator, cuisine);
                     recyclerView.setAdapter(adapter);
+                    //recyclerView.smoothScrollToPosition(8);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -453,6 +454,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                         restaurant.refreshScore();
                         if (adapter != null) {
+                            if (!distanceSort) {
+                                sortByAuthenticity();
+                            }
                             adapter.notifyDataSetChanged();;
                         }
                     }
