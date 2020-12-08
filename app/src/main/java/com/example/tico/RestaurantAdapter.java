@@ -1,14 +1,8 @@
 package com.example.tico;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -20,6 +14,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -141,7 +139,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         translate(authStampText, "authentic");
         nameTv.setText(restaurant.getName());
         String photoURL = restaurant.getPhotoURL();
-        Picasso.get().load(photoURL).resize(200, 0).centerCrop().into(photoIv);
+        if (photoURL.length() != 0) {
+            Picasso.get().load(photoURL).resize(200, 0).centerCrop().into(photoIv);
+        }
         photoIv.setContentDescription(restaurant.getName());
         photoIv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,8 +152,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             }
         });
         String distanceURL = restaurant.getDistanceURL();
-
-
 
 
         int rating = restaurant.getScore();
