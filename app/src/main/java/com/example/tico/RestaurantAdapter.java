@@ -195,15 +195,13 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                     restaurant.time = Double.valueOf(time.split("\\s")[0]);
 
                     // Change color of text according to distance
-                    if (restaurant.getDistance() <= 1.5) {
+                    if (restaurant.getDistance() <= 1.5)
                         distanceTv.setTextColor(Color.parseColor("#72D74F"));
-                    } else if (restaurant.getDistance() <= 2.5) {
+                    else if (restaurant.getDistance() <= 2.5)
                         distanceTv.setTextColor(Color.parseColor("#F5E135"));
-                    } else if (restaurant.getDistance() <= 3.5)  {
+                    else if (restaurant.getDistance() <= 3.5)
                         distanceTv.setTextColor(Color.parseColor("#F6B831"));
-                    } else {
-                        distanceTv.setTextColor(Color.parseColor("#FC1204"));
-                    }
+                    else distanceTv.setTextColor(Color.parseColor("#FC1204"));
 
                     distanceTv.setText(String.valueOf(restaurant.getDistance()));
                 } catch (JSONException e) {
