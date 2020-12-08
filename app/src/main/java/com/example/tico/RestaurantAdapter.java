@@ -102,19 +102,19 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         String photoURL = restaurant.getPhotoURL();
         if (photoURL.length() != 0) {
             Picasso.get().load(photoURL).resize(200, 0).centerCrop().into(photoIv);
-            photoIv.setContentDescription(restaurant.getName());
-            photoIv.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent startIntent = new Intent(view.getContext(), DetailsActivity.class);
-                    startIntent.putExtra("restaurant", restaurant);
-                    view.getContext().startActivity(startIntent);
-                }
-            });
         }
+        photoIv.setContentDescription(restaurant.getName());
+        photoIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startIntent = new Intent(view.getContext(), DetailsActivity.class);
+                startIntent.putExtra("restaurant", restaurant);
+                view.getContext().startActivity(startIntent);
+            }
+        });
         String distanceURL = restaurant.getDistanceURL();
 
-        
+
         int rating = restaurant.getScore();
         bar.setThumb(flag);
         bar.setProgress(0); // call these two methods before setting progress.
