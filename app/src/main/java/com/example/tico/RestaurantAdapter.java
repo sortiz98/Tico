@@ -35,6 +35,7 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.ViewHolder> {
@@ -43,7 +44,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     private RequestQueue requestQueue;
     private Context context;
     private Translator translator;
-    private Drawable flag;
+    private static String cuisine;
+    private HashMap<SeekBar, Integer> map;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView restaurantNameTv;
@@ -54,6 +56,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         TextView authBarLabel;
         ImageView frameView;
         ImageView authenticStamp;
+        SeekBar mexicanBar;
+        SeekBar indianBar;
+        SeekBar chineseBar;
+        SeekBar japaneseBar;
         SeekBar bar;
         public ViewHolder(View itemView) {
             super(itemView);
@@ -65,15 +71,47 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             this.authBarLabel = itemView.findViewById(R.id.authBarLabel);
             this.frameView = itemView.findViewById(R.id.frameView);
             this.authenticStamp = itemView.findViewById(R.id.authenticStamp);
-            this.bar = itemView.findViewById(R.id.seekBar);
+
+            this.mexicanBar = itemView.findViewById(R.id.seekBarMexican);
+            if (cuisine.equals("mexican")) {
+                this.bar = this.mexicanBar;
+            } else {
+                this.mexicanBar.setVisibility(View.INVISIBLE);
+            }
+
+            this.chineseBar = itemView.findViewById(R.id.seekBarChinese);
+            if (cuisine.equals("chinese")) {
+                this.bar = this.chineseBar;
+            } else {
+                this.chineseBar.setVisibility(View.INVISIBLE);
+            }
+
+            this.japaneseBar = itemView.findViewById(R.id.seekBarJapanese);
+            if (cuisine.equals("japanese")) {
+                this.bar = this.japaneseBar;
+            } else {
+                this.japaneseBar.setVisibility(View.INVISIBLE);
+            }
+
+            this.indianBar = itemView.findViewById(R.id.seekBarIndian);
+            if (cuisine.equals("indian")) {
+                this.bar = this.indianBar;
+            } else {
+                this.indianBar.setVisibility(View.INVISIBLE);
+            }
+
+
+            //this.bar.setThumb(flag);
         }
     }
 
-    public RestaurantAdapter(List<Restaurant> restaurants, Context context, Translator translator, Drawable flag) {
+    public RestaurantAdapter(List<Restaurant> restaurants, Context context, Translator translator, String cuisine) {
         this.restaurants = restaurants;
         this.context = context;
         this.translator = translator;
-        this.flag = flag;
+        this.cuisine = cuisine;
+        map = new HashMap<>();
+
     }
 
     @NonNull
@@ -87,7 +125,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
-    public void onBindViewHolder(RestaurantAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(RestaurantAdapter.ViewHolder holder, final int position) {
         TextView nameTv = holder.restaurantNameTv;
         final TextView distanceTv = holder.restaurantDistanceTv;
         final TextView scoreTv = holder.restaurantScoreTv;
@@ -98,6 +136,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         ImageView frameView = holder.frameView;
         ImageView authenticStamp = holder.authenticStamp;
         SeekBar bar = holder.bar;
+
         translate(authBarLabel, "authenticity");
         translate(authStampText, "authentic");
         nameTv.setText(restaurant.getName());
@@ -118,16 +157,11 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
 
         int rating = restaurant.getScore();
-        bar.setThumb(flag);
-        bar.setProgress(0); // call these two methods before setting progress.
-        bar.setMax(100);
-        bar.setProgress(rating);
-        bar.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                return true;
-            }
-        });
+        map.put(bar, rating);
+        //bar.setThumb(flag);
+        //bar.setProgress(0); // call these two methods before setting progress.
+        //bar.setMax(100);
+
 
         scoreTv.setText(Integer.toString(rating));
 
@@ -163,9 +197,28 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             bar.setProgressDrawable(context.getDrawable(R.drawable.red_bar));
             //barColor = Color.parseColor("#FC1204");
         }
-        LayerDrawable progressBarDrawable = (LayerDrawable) bar.getProgressDrawable();
-        ClipDrawable progressDrawable = (ClipDrawable) progressBarDrawable.getDrawable(1);
-        Drawable gradientDrawable = progressDrawable.getDrawable();
+
+        bar.setProgress(rating);
+        /*bar.setEnabled(false);
+        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                int ill = i;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                int ill=0;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int ill = 0;
+            }
+        });*/
+        //LayerDrawable progressBarDrawable = (LayerDrawable) bar.getProgressDrawable();
+        //ClipDrawable progressDrawable = (ClipDrawable) progressBarDrawable.getDrawable(1);
+        //Drawable gradientDrawable = progressDrawable.getDrawable();
 
         //gradientDrawable.setColorFilter(new PorterDuffColorFilter(barColor, PorterDuff.Mode.MULTIPLY));
         scoreTv.setText(Integer.toString(rating));
@@ -208,6 +261,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
                     }
 
                     distanceTv.setText(String.valueOf(restaurant.getDistance()));
+                    /*if (position == 8) {
+                        MainActivity.recyclerView.smoothScrollToPosition(0);
+                    }*/
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -219,6 +275,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
             }
         });
         queue.add(stringRequest);
+        ////MainActivity.recyclerView.smoothScrollToPosition(position);
     }
 
     public void translate(final TextView view, String str) {
