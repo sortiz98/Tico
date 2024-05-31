@@ -104,8 +104,6 @@ public class DetailsActivity extends AppCompatActivity {
         put("हिन्दी", TranslateLanguage.HINDI);
     }};
 
-    // test detailURL: https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJaRrJa2Nx44kRPmjdbYFv-Ow&fields=name,rating,formatted_phone_number&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -161,7 +159,6 @@ public class DetailsActivity extends AppCompatActivity {
         language = restaurant.getLanguage();
         distance = restaurant.getDistance();
         time = (int) restaurant.getTime();
-        //languageTextView.setText(language); // Can be deleted
 
         restaurantName.setText(name);
         if (photoURL.length() != 0)
@@ -488,19 +485,6 @@ public class DetailsActivity extends AppCompatActivity {
             bar.setProgressDrawable(getDrawable(R.drawable.red_bar));
             //barColor = Color.parseColor("#FC1204");
         }
-        /*int barColor;
-        if (rating >= 80) {
-            barColor = Color.parseColor("#72D74F");
-
-        } else if (rating >= 50) {
-            barColor = Color.parseColor("#F5E135");
-        } else {
-            barColor = Color.parseColor("#FC1204");
-        }
-        LayerDrawable progressBarDrawable = (LayerDrawable) bar.getProgressDrawable();
-        Drawable progressDrawable = progressBarDrawable.getDrawable(1);
-
-        progressDrawable.setColorFilter(new PorterDuffColorFilter(barColor, PorterDuff.Mode.MULTIPLY));*/
     }
 
 }

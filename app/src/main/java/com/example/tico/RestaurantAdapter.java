@@ -197,44 +197,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
         }
 
         bar.setProgress(rating);
-        /*bar.setEnabled(false);
-        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                int ill = i;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                int ill=0;
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                int ill = 0;
-            }
-        });*/
-        //LayerDrawable progressBarDrawable = (LayerDrawable) bar.getProgressDrawable();
-        //ClipDrawable progressDrawable = (ClipDrawable) progressBarDrawable.getDrawable(1);
-        //Drawable gradientDrawable = progressDrawable.getDrawable();
-
-        //gradientDrawable.setColorFilter(new PorterDuffColorFilter(barColor, PorterDuff.Mode.MULTIPLY));
         scoreTv.setText(Integer.toString(rating));
-
-        // Change color of text according to distance
-        /*double distance = restaurant.getDistance();
-        if (distance <= 1.5) {
-            distanceTv.setTextColor(Color.parseColor("#72D74F"));
-        } else if (distance <= 2.5) {
-            distanceTv.setTextColor(Color.parseColor("#F5E135"));
-        } else if (distance <= 3.5)  {
-            distanceTv.setTextColor(Color.parseColor("#F6B831"));
-        } else {
-            distanceTv.setTextColor(Color.parseColor("#FC1204"));
-        }
-
-        distanceTv.setText(String.valueOf(restaurant.getDistance()));
-        timeTv.setText(String.valueOf((int) restaurant.getTime()));*/
 
         RequestQueue queue = Volley.newRequestQueue(this.context);
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, distanceURL, null, new Response.Listener<JSONObject>() {

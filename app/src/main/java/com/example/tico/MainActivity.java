@@ -304,7 +304,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // https://maps.googleapis.com/maps/api/place/textsearch/json?query=chinese+restaurants&location=100,200&radius=1500&type=restaurant&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
     private void processCurrentLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -321,7 +320,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // https://maps.googleapis.com/maps/api/geocode/json?address=2301durantAve&key=AIzaSyDugNQO9vZxbi68BQnReZCd_CeM-cg-WW0
     private void processInputLocation(String address) {
         RequestQueue queue = Volley.newRequestQueue(this);
         String place_Url = place_URL + address.replace("\\s+", "") + "&key=" + getResources().getString(R.string.Google_API_Key);
